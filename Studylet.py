@@ -1,32 +1,65 @@
 from tkinter import * 
 from tkinter.ttk import *
-
+import tkinter as tk
 # create main window 
 root = Tk()
 
 root.title("Text")
 root.attributes('-fullscreen', True)
 
-# Labe lis what output will be 
-# show on window
-#label = Label(root, text = "Hello World !").pack()
-
-def newWindow():
+def flashcardMenu(type):
     # Toplevel object which will be treated as a new window
-    newWindow = Toplevel(root)
+    flashcardMenu = Toplevel(root)
 
-    newWindow.title("new")
+    flashcardMenu.title(type)
 
-    newWindow.attributes('-fullscreen', True)
+    flashcardMenu.attributes('-fullscreen', True)
 
-    root.withdraw()
+    root.withdraw()  # closes the root window
+    #Display text
+    '''t = Text(flashcardMenu, height=5, width = 52)
+    t.pack()
+    t.insert(tk.END, type)
+    '''
+    playbtn = Button(flashcardMenu, text = 'Play flashcard')
+    addbtn = Button(flashcardMenu, text = 'Add flashcard')
+    removebtn = Button(flashcardMenu, text = 'Remove flashcard')
+    backbtn = Button(flashcardMenu, text = 'Back',
+                     command = lambda:[backHome()])
+    playbtn.pack(side = 'top')
+    addbtn.pack(side='top')
+    removebtn.pack(side = 'top')
+    backbtn.pack(side='bottom')
+def quizMenu():
+    # Toplevel object which will be treated as a new window
+    quizMenu = Toplevel(root)
 
+    quizMenu.title(type)
 
-btn = Button(root, text = 'Exit',
-             command = root.destroy)#Exit 
-studysetbtn = Button(root, text = 'Study sets',
-                     command = lambda:[newWindow()])
-btn.pack(side = 'right')
-studysetbtn.pack(side = 'left')
-# calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
-mainloop()
+    quizMenu.attributes('-fullscreen', True)
+
+    root.withdraw()  # closes the root window
+    #Display text
+    '''t = Text(quizMenu, height=5, width = 52)
+    t.pack()
+    t.insert(tk.END, type)'''
+    playbtn = Button(quizMenu, text = 'Play quiz')
+    playbtn.pack(side = 'bottom')
+def homeMenu():
+    flashcard = "flashcard"
+    quiz = "quiz"
+    exitbtn = Button(root, text = 'Exit',
+                command = root.destroy)#Exit 
+    flashcardbtn = Button(root, text = 'Flashcard',
+                        command = lambda:[flashcardMenu(flashcard)])
+    quizbtn = Button(root, text = 'Quiz',
+                    command = lambda:[quizMenu(quiz)])
+
+    flashcardbtn.pack(side = 'top')
+    quizbtn.pack(side = 'top')
+    exitbtn.pack(side = 'top')
+    # calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
+    mainloop()
+def backHome():
+    root.deiconify()
+homeMenu()
