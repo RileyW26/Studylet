@@ -71,15 +71,16 @@ def addFlashcard(window):
 
     addingFlashcard.attributes('-fullscreen', True)
     addbtn = Button(addingFlashcard, text = 'Add',
-                    command = lambda:[addData(title)]).grid(row=1)
-    backbtn = Button(addingFlashcard, text = 'Back').grid(row=1, column=1)
-    titlelbl = Label(addingFlashcard, text = "Title:").grid(row=0)
-    titlebox = Entry(addingFlashcard).grid(row=0, column=1)
+                    command = addData(title)).place(anchor = CENTER, relx = .4, rely = .2)
+    backbtn = Button(addingFlashcard, text = 'Back').place(anchor = CENTER,relx = .5, rely = .2 )
+    titlelbl = Label(addingFlashcard, text = "Title:").place(anchor = CENTER, relx = .4, rely = .1)
+    titlebox = Entry(addingFlashcard).place(anchor = CENTER, relx = .5, rely = .1)
     titlelbl.pack()
     titlebox.pack()
     addbtn.pack()
     backbtn.pack()
     title = titlebox.get()
+    print(titlebox)
 def addData(data):
     print(data)
 # create main window 
