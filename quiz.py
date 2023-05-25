@@ -1,32 +1,49 @@
 import csv
 import os
 import random
-fileName = os.getcwd() + '\\Studylet\\test.csv'
-file = open(fileName, "r")
-text = file.readline()
-delimeter = "|"
-termsAndDefinitions = text.split("|")
-print(termsAndDefinitions)
-terms = []
-definitions = []
-for i in range (1, len(termsAndDefinitions)):
-    if i % 2 == 0:
-        definitions.append(termsAndDefinitions[i])
-    elif i % 2 != 0: 
-        terms.append(termsAndDefinitions[i])
-print(terms)
-print(definitions)
-questions = []
-for i in range(len(terms)):
-    questions.append(i)
-print(questions)
-randomInteger = random.randint(0, len(questions)-1)
-print(randomInteger)
-questions.remove(randomInteger)
-print(questions)
-if randomInteger == 0:
-    print(terms[randomInteger])
+def openFile():
+    fileName = os.getcwd() + '\\Studylet\\test.csv'
+    file = open(fileName, "r")
+    text = file.readline()
+    delimeter = "|"
+    termsAndDefinitions = text.split("|")
+    return termsAndDefinitions
+def seperateTermsDefinitions(termsAndDefinitionsValues):
+    terms = []
+    definitions = []
+    for i in range (1, len(termsAndDefinitionsValues)):
+        if i % 2 == 0:
+            definitions.append(termsAndDefinitionsValues[i])
+        elif i % 2 != 0: 
+            terms.append(termsAndDefinitionsValues[i])
+    return terms, definitions
+def splitQuestions(questionTerms):
+    terms, definitions = questionTerms
+    questions = []
+    trueOrFalseQuestions = []
+    for i in range(len(terms)):
+        questions.append(i)
+    halfLength = len(questions)/2
+    if type(halfLength) == float:
+        halfLength = round(halfLength)
+    for i in range(int(halfLength)):
+        randomInteger = random.choice(questions)
+        questions.remove(randomInteger)
+        trueOrFalseQuestions.append(randomInteger)
+    return questions, trueOrFalseQuestions
+def makeTrueOrFalseQuestions(dividedQuestions, qt):
+    multipleChoice, trueOrFalse = dividedQuestions
+    terms, definitions = qt
+    print(dividedQuestions)
+    halfLength = len(trueOrFalse)/2
+    if type(halfLength) == float:
+        halfLength = round(halfLength)
+    #for i in range(int(halfLength)):
 
-elif randomInteger != 0:
-    print(terms[randomInteger-1])
-#True or false questions
+def makeMultipleChoiceQuestions(dividedQuestions, qt):
+    multipleChoice, trueOrFalse = dividedQuestions
+td = openFile()
+td2 = seperateTermsDefinitions(td)
+splitedQuestions = splitQuestions(td2)
+makeTrueOrFalseQuestions(splitedQuestions, td2)
+
