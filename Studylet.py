@@ -1,6 +1,6 @@
 from tkinter import * 
 from tkinter.ttk import *
-import tkinter as tk
+import csv
 import os
 from os.path import exists
 def back(window, title):
@@ -26,7 +26,8 @@ def flashcardHome():
     playbtn = Button(flashcardMenu, text = 'Play flashcard')
     addbtn = Button(flashcardMenu, text = 'Add flashcard',
                     command = lambda:[addFlashcard(flashcardMenu)])
-    removebtn = Button(flashcardMenu, text = 'Remove flashcard')
+    removebtn = Button(flashcardMenu, text = 'Remove flashcard',
+                       command = lambda:[removeMenu(flashcardMenu)])
     backbtn = Button(flashcardMenu, text = 'Back',
                      command = lambda:[back(flashcardMenu, title)])
     titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
@@ -87,7 +88,7 @@ def addFlashcard(window):
     deflbl = Label(addingFlashcard, text = 'Definition:')
     defbox = Entry(addingFlashcard)
     addbtn = Button(addingFlashcard, text = 'Add',
-                    command = lambda:[addData(titlebox, termbox, defbox)])
+                    command = lambda:[addData(titlebox, termbox, defbox), addFlashcard2(addingFlashcard)])
     backbtn = Button(addingFlashcard, text = 'Back',
                      command = lambda:[back(addingFlashcard, title)])
     titlePage.place(anchor = CENTER, relx = .5, rely = .1)
@@ -103,18 +104,18 @@ def addData(title, term, definition):
     title = title.get()
     term = term.get()
     definition = definition.get()
-    print(title, term, definition)
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
     fileExists = exists(file)
     print(file)
     if fileExists == True:
         f = open(file, "a")
-        f.write(title +"|" + term + "|" + definition)
+        f.write("\n" + title +"|" + term + "|" + definition)
+        f.close()
     else:
         f = open(file, "w")
         f.write(title +"|" + term + "|" + definition)
-    addFlashcard2(addingFlashcard)
+        f.close()
 def addFlashcard2(window):
     window.destroy()
     addingFlashcard = Toplevel()
@@ -129,7 +130,7 @@ def addFlashcard2(window):
     deflbl = Label(addingFlashcard, text = 'Definition:')
     defbox = Entry(addingFlashcard)
     addbtn = Button(addingFlashcard, text = 'Add',
-                    command = lambda:[addData2(termbox, defbox)])
+                    command = lambda:[addData2(termbox, defbox), addFlashcard2(addingFlashcard)])
     backbtn = Button(addingFlashcard, text = 'Back',
                      command = lambda:[back(addingFlashcard, title)])
     titlePage.place(anchor = CENTER, relx = .5, rely = .1)
@@ -142,7 +143,29 @@ def addFlashcard2(window):
 def addData2(term, definition):
     term = term.get()
     definition = definition.get()
-    print(term, definition)
+    folder = os.getcwd()
+    file = folder + "\\Studysets.csv"
+    f = open(file, "a")
+    f.write("|" + term + "|" + definition)
+    f.close()
+def removeMenu(window):
+    window.destroy()
+    removeMenu = Toplevel()
+
+    removeMenu.title('Adding Flashcard')
+
+    removeMenu.attributes('-fullscreen', True)
+    title = "Remove Flashcards"
+    titlePage = Label(removeMenu, text = title)
+    titlePage.place(anchor = CENTER, relx = .5, rely = .1)
+    folder = os.getcwd()
+    file = folder + "\\Studysets.csv"
+    f = open(file, "r")
+    lines = len(f.readlines())
+    print(lines)
+    word = csv.reader(f, dialect="excel", delimiter="|")
+    for i in word:
+        print(i)
 # create main window 
 root = Tk()
 
