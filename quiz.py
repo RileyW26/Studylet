@@ -5,7 +5,6 @@ def openFile():
     fileName = os.getcwd() + '\\Studylet\\test.csv'
     file = open(fileName, "r")
     text = file.readline()
-    delimeter = "|"
     termsAndDefinitions = text.split("|")
     return termsAndDefinitions
 def seperateTermsDefinitions(termsAndDefinitionsValues):
@@ -59,7 +58,22 @@ def makeTrueOrFalseQuestions(dividedQuestions, qt):
 def makeMultipleChoiceQuestions(dividedQuestions, qt):
     multipleChoice, trueOrFalse = dividedQuestions
     terms, definitions = qt
+    multipleChoiceQuestions = {}
     print(multipleChoice)
+    for i in range(len(multipleChoice)):
+        multipleAnswers = []
+        definitionNum = []
+        for k in range(len(definitions)):
+            definitionNum.append(k)
+        multipleAnswers.append(definitions[multipleChoice[i]])
+        temp = multipleChoice[i]
+        definitionNum.remove(temp)
+        for j in range(3): #repeat 3 times for 3 fake answers
+            randomNumber = random.choice(definitionNum)
+            definitionNum.remove(randomNumber)
+            multipleAnswers.append(definitions[randomNumber])
+        multipleChoiceQuestions.update({terms[multipleChoice[i]] : multipleAnswers })
+    print(multipleChoiceQuestions)
 
 
 td = openFile()
