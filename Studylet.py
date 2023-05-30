@@ -162,10 +162,34 @@ def removeMenu(window):
     file = folder + "\\Studysets.csv"
     f = open(file, "r")
     lines = len(f.readlines())
-    print(lines)
-    word = csv.reader(f, dialect="excel", delimiter="|")
-    for i in word:
-        print(i)
+    # Create a Canvas widget
+    canvas = Canvas(removeMenu)
+    canvas.pack(side = LEFT, fill= BOTH, expand=True)
+
+    # Create a Scrollbar widget
+    scrollbar = Scrollbar(window, orient=VERTICAL, command=canvas.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
+
+    # Configure the Canvas to use the Scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Create a Frame inside the Canvas
+    frame = Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor=NW)
+    # Update the Canvas scrollable region
+    frame.update_idletasks()
+    canvas.configure(scrollregion=canvas.bbox("all"))
+    for i in range(lines):
+        button = Button(removeMenu, text = openFile(i))
+        button.pack(fill= X)
+def openFile(lines):
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[lines]
+    termsAndDefinitions = line.split("|")
+    title = termsAndDefinitions[0]
+    return title
 # create main window 
 root = Tk()
 
