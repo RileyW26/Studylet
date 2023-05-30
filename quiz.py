@@ -1,5 +1,8 @@
+from tkinter import * 
+from tkinter.ttk import *
 import csv
 import os
+from os.path import exists
 import random
 def openFile():
     fileName = os.getcwd() + '\\Studylet\\test.csv'
@@ -83,35 +86,34 @@ splitedQuestions = splitQuestions(td2)
 questionTF = makeTrueOrFalseQuestions(splitedQuestions, td2)
 questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
 
-from tkinter import * 
-from tkinter.ttk import *
+def quizMenu():
+    # Toplevel object which will be treated as a new window
+    quizMenu = Toplevel(root)
 
-# create main window 
+    quizMenu.title('Quiz Home Menu')
+
+    quizMenu.attributes('-fullscreen', True)
+
+    title = "Quiz Menu"
+    titlelbl = Label(quizMenu, text = title)
+    root.withdraw()  # closes the root window
+
+def homeMenu():
+    title = "Studylet"
+    titlelbl = Label(root, text = title)
+    exitbtn = Button(root, text = 'Exit',
+                command = root.destroy)#Exit 
+    quizbtn = Button(root, text = 'Quiz',
+                    command = lambda:[quizMenu()])
+    
+    quizbtn.place(anchor = CENTER, relx = 0.5, rely = 0.5)
+
+    # calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
+    mainloop()
+
 root = Tk()
 
-root.title("Text")
+root.title("Studylet")
 root.attributes('-fullscreen', True)
 
-# Labe lis what output will be 
-# show on window
-#label = Label(root, text = "Hello World !").pack()
-
-def newWindow():
-    # Toplevel object which will be treated as a new window
-    newWindow = Toplevel(root)
-
-    newWindow.title("new")
-
-    newWindow.attributes('-fullscreen', True)
-
-    root.withdraw()
-
-
-btn = Button(root, text = 'Exit',
-             command = root.destroy)#Exit 
-studysetbtn = Button(root, text = 'Study sets',
-                     command = lambda:[newWindow()])
-btn.pack(side = 'right')
-studysetbtn.pack(side = 'left')
-# calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
-mainloop()
+homeMenu()
