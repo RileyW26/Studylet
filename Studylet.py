@@ -12,6 +12,8 @@ def back(window, title):
         root.deiconify()
     elif (title == "Creating Flashcard Set"):
         flashcardHome()
+    elif (title == "Remove Studysets"):
+        flashcardHome()
 def flashcardHome():
     # Toplevel object which will be treated as a new window
     flashcardMenu = Toplevel(root)
@@ -155,19 +157,17 @@ def removeMenu(window):
     removeMenu.title('Adding Flashcard')
 
     removeMenu.attributes('-fullscreen', True)
-    title = "Remove Flashcards"
-    titlePage = Label(removeMenu, text = title)
-    titlePage.place(anchor = CENTER, relx = .5, rely = .1)
+    
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
     f = open(file, "r")
     lines = len(f.readlines())
     # Create a Canvas widget
     canvas = Canvas(removeMenu)
-    canvas.pack(side = LEFT, fill= BOTH, expand=True)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
     # Create a Scrollbar widget
-    scrollbar = Scrollbar(window, orient=VERTICAL, command=canvas.yview)
+    scrollbar = Scrollbar(removeMenu, orient=VERTICAL, command=canvas.yview)
     scrollbar.pack(side=RIGHT, fill=Y)
 
     # Configure the Canvas to use the Scrollbar
@@ -176,13 +176,21 @@ def removeMenu(window):
     # Create a Frame inside the Canvas
     frame = Frame(canvas)
     canvas.create_window((0, 0), window=frame, anchor=NW)
-    # Update the Canvas scrollable region
-    frame.update_idletasks()
-    canvas.configure(scrollregion=canvas.bbox("all"))
+
+    # Page title
+    title = "Remove Studysets"
+    titlelbl = Label(removeMenu, text = title)
+    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
+    backbutton = Button(removeMenu, text = "back",
+                        command = lambda:[back(removeMenu, title)])
+    backbutton.place(anchor = CENTER, relx = .5, rely = .8)
+    # Placing buttons
     for i in range(lines):
-        button = Button(removeMenu, text = openFile(i))
-        button.pack(fill= X)
-def openFile(lines):
+            button = Button(frame, text = titles(i))
+            button.pack(side = "top", fill = X)
+
+    
+def titles(lines):
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
     text = file.readlines()
