@@ -205,17 +205,17 @@ def titles(lines):
     title = termsAndDefinitions[0]
     file.close()
     return title
-def definitions(line):
-    termsAndDefinitions = line.split("|")
+def seperateTermsDefinitions(termsAndDefinitionsValues):
+    terms = []
     definitions = []
-    for i in range(1, len(termsAndDefinitions)):
-        print(i%2)
-        if i % 2:
-            definitions.append(termsAndDefinitions[i])
-        else:
-            continue
-    print(definitions)
-    return definitions
+    for i in range (1, len(termsAndDefinitionsValues)):
+        if i % 2 == 0:
+            definitions.append(termsAndDefinitionsValues[i])
+        elif i % 2 != 0: 
+            terms.append(termsAndDefinitionsValues[i])
+    #print(terms)
+    #print(definitions)
+    return terms, definitions
 def removeSet(window, num):
     window.destroy()
     title = 'Editing "'
@@ -227,8 +227,7 @@ def removeSet(window, num):
     file = open(fileName, "r")
     text = file.readlines()
     line = text[int(num)]
-    definitionList = definitions(line)
-    print(definitionList)
+    print(seperateTermsDefinitions(line))
      # Create a Canvas widget
     canvas = Canvas(remove)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
