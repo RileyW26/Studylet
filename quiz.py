@@ -62,7 +62,6 @@ def makeMultipleChoiceQuestions(dividedQuestions, qt):
     multipleChoice, trueOrFalse = dividedQuestions
     terms, definitions = qt
     multipleChoiceQuestions = {}
-    print(multipleChoice)
     for i in range(len(multipleChoice)):
         multipleAnswers = []
         definitionNum = []
@@ -76,17 +75,16 @@ def makeMultipleChoiceQuestions(dividedQuestions, qt):
             definitionNum.remove(randomNumber)
             multipleAnswers.append(definitions[randomNumber])
         multipleChoiceQuestions.update({terms[multipleChoice[i]] : multipleAnswers })
-    print(multipleChoiceQuestions)
     return multipleChoiceQuestions
 
-
+quizCounter = 0
 td = openFile()
 td2 = seperateTermsDefinitions(td)
 splitedQuestions = splitQuestions(td2)
 questionTF = makeTrueOrFalseQuestions(splitedQuestions, td2)
 questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
 
-def quizMenu():
+def quizMenu(questionTF, questionMC):
     # Toplevel object which will be treated as a new window
     quizMenu = Toplevel(root)
 
@@ -96,15 +94,76 @@ def quizMenu():
 
     title = "Quiz Menu"
     titlelbl = Label(quizMenu, text = title)
-    root.withdraw()  # closes the root window
 
-def homeMenu():
+    startbtn = Button(quizMenu, text = 'Start', command = lambda:[quiz_window(quizMenu, questionTF, questionMC)])
+    titlelbl.place(anchor = CENTER, relx = .5, rely = .2)
+    startbtn.place(anchor = CENTER, relx = .5, rely = .5)
+    root.withdraw()  # closes the root window
+def answerSubmitted(answerSubmission):
+    print(answerSubmission)
+
+    # Store the result in a StringVar
+    #result_var.set(str(result))
+def check_button(button_pressed, quiz):
+    if button_pressed.get():
+        print("Button Pressed")
+    else:
+        quiz.after(100, check_button, button_pressed, quiz)
+def quiz_window(quizMenu, questionTF, questionMC):
+    #Visuals
+    quizMenu.destroy()
+    while questionMC !={}:
+        quiz = Toplevel()
+
+        quiz.title('Quiz')
+
+        quiz.attributes('-fullscreen', True)
+
+        title = "Quiz"
+        titlelbl = Label(quiz, text = title)
+        titlelbl.place(anchor = CENTER, relx = 0.5, rely = 0.1)
+
+        listQuestionMC = dict(questionMC)
+
+        question = random.choice(list(questionMC)) #random term to act as question
+        print(questionMC)
+        print("question: ", question)
+        questionMC.pop(question)
+        print(questionMC)
+        
+
+        answer = listQuestionMC.get(question)
+        correctAnswer = answer[0]
+        random.shuffle(answer)
+        print(answer)
+        print("correct: ", correctAnswer)
+        questionDescription = Label(quiz, text = "Multiple Choice: Choose the matching definition")
+        questionDescription.place(anchor = CENTER, relx = .5, rely = .2)
+            
+
+        questionDisplay = Label(quiz, text = question)
+        questionDisplay.place(anchor = CENTER, relx = .5, rely = .3)
+        button_pressed = BooleanVar()
+        answerOneBtn = Button(quiz, text = answer[0], command=lambda id = answer[0]:[answerSubmitted(id), button_pressed.set(True)])
+        answerTwoBtn = Button(quiz, text = answer[1], command=lambda id = answer[1]:[answerSubmitted(id)])
+        answerThreeBtn = Button(quiz, text = answer[2], command=lambda id = answer[2]:[answerSubmitted(id)])
+        answerFourtBtn = Button(quiz, text = answer[3], command=lambda id = answer[3]:[answerSubmitted(id)])
+        answerOneBtn.place(anchor = CENTER, relx = .3, rely = .5)
+        answerTwoBtn.place(anchor = CENTER, relx = .7, rely = .5)
+        answerThreeBtn.place(anchor = CENTER, relx = .3, rely = .6)
+        answerFourtBtn.place(anchor = CENTER, relx = .7, rely = .6)
+        quiz.after(100, check_button, button_pressed, quiz)
+        print('works')
+
+
+
+    
+def homeMenu(questionTF, questionMC):
     title = "Studylet"
     titlelbl = Label(root, text = title)
     exitbtn = Button(root, text = 'Exit',
                 command = root.destroy)#Exit 
-    quizbtn = Button(root, text = 'Quiz',
-                    command = lambda:[quizMenu()])
+    quizbtn = Button(root, text = 'Quiz', command = lambda:[quizMenu(questionTF, questionMC)])
     
     quizbtn.place(anchor = CENTER, relx = 0.5, rely = 0.5)
 
@@ -116,4 +175,5 @@ root = Tk()
 root.title("Studylet")
 root.attributes('-fullscreen', True)
 
-homeMenu()
+
+homeMenu(questionTF, questionMC)
