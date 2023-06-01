@@ -216,6 +216,8 @@ def seperateTermsDefinitions(termsAndDefinitionsValues):
     #print(terms)
     #print(definitions)
     return terms, definitions
+def percentageWindow(percentage, total_length):
+    return int(percentage / 100 * total_length)
 def removeSet(window, num):
     window.destroy()
     title = 'Editing "'
@@ -227,7 +229,19 @@ def removeSet(window, num):
     file = open(fileName, "r")
     text = file.readlines()
     line = text[int(num)]
-    print(seperateTermsDefinitions(line))
+    value = line.split("|")
+    values = seperateTermsDefinitions(value)
+    terms, defintions = values
+    canvas_width_percentage = 30  # Width as a percentage of the window width
+    canvas_height_percentage = 20  # Height as a percentage of the window height
+    canvas_width_percentage2 = 70
+
+    # Calculate the pixel values based on percentages
+    window_width = remove.winfo_screenwidth()
+    window_height = remove.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
      # Create a Canvas widget
     canvas = Canvas(remove)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
@@ -241,20 +255,24 @@ def removeSet(window, num):
 
     # Create a Frame inside the Canvas
     frame = Frame(canvas)
-    canvas.create_window((0, 0), window=frame, anchor=NW)
-    '''
-    for i in range(1 < len(termsAndDefinitions)+1):
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+    
+    frame2 = Frame(canvas)
+    canvas.create_window((canvas_width2, canvas_height), window =frame2, anchor = CENTER)
+    termlbl = Label(frame, text = 'Terms:')
+    deflbl = Label(frame2, text = 'Definitions:')
+    termlbl.pack()
+    deflbl.pack()
+    for i in range(len(terms)):
         entry = Entry(frame)
-        entry.insert(END, termsAndDefinitions[i])
-        entry.pack(side = "top", fill=BOTH)
-
-    for i in range(len(1 < termsAndDefinitions)):
-        entry = Entry(frame)
-        entry.insert(END, termsAndDefinitions[i])
-        entry.pack(side = "top", fill=BOTH)
-    '''
+        entry.insert(END, terms[i])
+        entry.pack()
+    for i in range(len(defintions)):
+        entry = Entry(frame2)
+        entry.insert(END, defintions[i])
+        entry.pack()
     titlelbl = Label(remove, text = title + titles(num)+'"')
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .2)
+    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
     savebtn = Button(remove, text = 'Save',
                      command = lambda:[save(entry)])
     savebtn.place(anchor = CENTER, relx = .5, rely = .8)
