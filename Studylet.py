@@ -1,19 +1,21 @@
 from tkinter import * 
 from tkinter.ttk import *
-import csv
 import os
 from os.path import exists
 def back(window, title):
     '''
     One function which will return any page back a page
     '''
-    window.destroy()
     if (title == "Flashcard Menu") or (title =="Quiz Menu"):
         root.deiconify()
     elif (title == "Creating Flashcard Set"):
+        window.destroy()
         flashcardHome()
     elif (title == "Remove Studysets"):
+        window.destroy()
         flashcardHome()
+    elif (title == 'Editing "'):
+        removeMenu(window)
 def flashcardHome():
     # Toplevel object which will be treated as a new window
     flashcardMenu = Toplevel(root)
@@ -186,18 +188,84 @@ def removeMenu(window):
     backbutton.place(anchor = CENTER, relx = .5, rely = .8)
     # Placing buttons
     for i in range(lines):
-            button = Button(frame, text = titles(i))
+            button = Button(frame, text = titles(i),
+                            command = lambda id = i:[removeSet(removeMenu, id)])
             button.pack(side = "top", fill = X)
 
     
 def titles(lines):
+    '''
+    Returns a string of all the elements before | in studysets.csv
+    '''
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
     text = file.readlines()
     line = text[lines]
     termsAndDefinitions = line.split("|")
     title = termsAndDefinitions[0]
+    file.close()
     return title
+def definitions(line):
+    termsAndDefinitions = line.split("|")
+    definitions = []
+    for i in range(1, len(termsAndDefinitions)):
+        print(i%2)
+        if i % 2:
+            definitions.append(termsAndDefinitions[i])
+        else:
+            continue
+    print(definitions)
+    return definitions
+def removeSet(window, num):
+    window.destroy()
+    title = 'Editing "'
+    remove = Toplevel()
+    remove.title = "Remove a studyset"
+    remove.attributes('-fullscreen', True)
+   
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[int(num)]
+    definitionList = definitions(line)
+    print(definitionList)
+     # Create a Canvas widget
+    canvas = Canvas(remove)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+
+    # Create a Scrollbar widget
+    scrollbar = Scrollbar(remove, orient=VERTICAL, command=canvas.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
+
+    # Configure the Canvas to use the Scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Create a Frame inside the Canvas
+    frame = Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor=NW)
+    '''
+    for i in range(1 < len(termsAndDefinitions)+1):
+        entry = Entry(frame)
+        entry.insert(END, termsAndDefinitions[i])
+        entry.pack(side = "top", fill=BOTH)
+
+    for i in range(len(1 < termsAndDefinitions)):
+        entry = Entry(frame)
+        entry.insert(END, termsAndDefinitions[i])
+        entry.pack(side = "top", fill=BOTH)
+    '''
+    titlelbl = Label(remove, text = title + titles(num)+'"')
+    titlelbl.place(anchor = CENTER, relx = .5, rely = .2)
+    savebtn = Button(remove, text = 'Save',
+                     command = lambda:[save(entry)])
+    savebtn.place(anchor = CENTER, relx = .5, rely = .8)
+    backbtn = Button(remove, text = 'Back',
+                     command = lambda:[back(remove, title)])
+    backbtn.place(anchor = CENTER, relx = .3, rely = .8)
+    file.close()
+def save(file):
+    saved = file.get()
+    print(saved)
 # create main window 
 root = Tk()
 
