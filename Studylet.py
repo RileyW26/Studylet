@@ -164,6 +164,14 @@ def removeMenu(window):
     file = folder + "\\Studysets.csv"
     f = open(file, "r")
     lines = len(f.readlines())
+    canvas_width_percentage = 45 # Width as a percentage of the window width
+    canvas_height_percentage = 20  # Height as a percentage of the window height
+
+    # Calculate the pixel values based on percentages
+    window_width = removeMenu.winfo_screenwidth()
+    window_height = removeMenu.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
     # Create a Canvas widget
     canvas = Canvas(removeMenu)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
@@ -177,7 +185,7 @@ def removeMenu(window):
 
     # Create a Frame inside the Canvas
     frame = Frame(canvas)
-    canvas.create_window((0, 0), window=frame, anchor=NW)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
     # Page title
     title = "Remove Studysets"
@@ -263,26 +271,37 @@ def removeSet(window, num):
     deflbl = Label(frame2, text = 'Definitions:')
     termlbl.pack()
     deflbl.pack()
+    termEntry = []
+    defEntry = []
     for i in range(len(terms)):
         entry = Entry(frame)
         entry.insert(END, terms[i])
         entry.pack()
+        termEntry.append(entry)
     for i in range(len(defintions)):
-        entry = Entry(frame2)
-        entry.insert(END, defintions[i])
-        entry.pack()
+        entry2 = Entry(frame2)
+        entry2.insert(END, defintions[i])
+        entry2.pack()
+        defEntry.append(entry2)
     titlelbl = Label(remove, text = title + titles(num)+'"')
     titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
     savebtn = Button(remove, text = 'Save',
-                     command = lambda:[save(entry)])
+                     command = lambda:[save(termEntry, defEntry),])
     savebtn.place(anchor = CENTER, relx = .5, rely = .8)
     backbtn = Button(remove, text = 'Back',
                      command = lambda:[back(remove, title)])
     backbtn.place(anchor = CENTER, relx = .3, rely = .8)
+    removebtn = Button(remove, text = "Remove Entire Studyset",
+                       command = lambda:[removeLine(line)])
     file.close()
-def save(file):
-    saved = file.get()
-    print(saved)
+def save(term, definition):
+    termsAndDefintions = term, definition
+    print(termsAndDefintions)
+    for i in range(len(termsAndDefintions)):
+        t = term[i].get()
+        d = definition[i].get()
+        print(t)
+        print(d)
 # create main window 
 root = Tk()
 
