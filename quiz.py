@@ -98,10 +98,20 @@ def quizMenu(questionTF, questionMC, window):
 
     quizMenu.attributes('-fullscreen', True)
 '''
+
     canvas = Canvas(window)
     Canvas.pack(side=LEFT, fill=BOTH, expand=True)
     frame = Frame(canvas)
-    
+    canvas_width_percentage = 30  # Width as a percentage of the window width
+    canvas_height_percentage = 20  # Height as a percentage of the window height
+    canvas_width_percentage2 = 70
+
+    # Calculate the pixel values based on percentages
+    window_width = remove.winfo_screenwidth()
+    window_height = remove.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
     title = "Quiz Menu"
     titlelbl = Label(quizMenu, text = title)
 
