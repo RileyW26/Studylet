@@ -1,8 +1,10 @@
 from tkinter import * 
 from tkinter.ttk import *
+import csv
 import os
 from os.path import exists
-
+import random
+import time
 def flashcardHome(window):
     '''
     Flashcard menu where you can choose to start playing with flashcard sets.
@@ -36,7 +38,155 @@ def flashcardHome(window):
     titlelbl.pack()
     playbtn.pack()
     backbtn.pack()
+def seperateTermsDefinitions(termsAndDefinitionsValues):
+    terms = []
+    definitions = []
+    for i in range (1, len(termsAndDefinitionsValues)):
+        if i % 2 == 0:
+            definitions.append(termsAndDefinitionsValues[i])
+        elif i % 2 != 0: 
+            terms.append(termsAndDefinitionsValues[i])
+    #print(terms)
+    #print(definitions)
+    return terms, definitions
+def splitQuestions(questionTerms):
+    terms, definitions = questionTerms
+    questions = []
+    trueOrFalseQuestions = []
+    for i in range(len(terms)):
+        questions.append(i)
+    halfLength = len(questions)//2
+   
+    for i in range(int(halfLength)):
+        randomInteger = random.choice(questions)
+        questions.remove(randomInteger)
+        trueOrFalseQuestions.append(randomInteger)
+    print("2: ", questions, trueOrFalseQuestions)
+    return questions, trueOrFalseQuestions
+def makeTrueOrFalseQuestions(dividedQuestions, qt):
+    trueOrFalseWrong = []
+    trueOrFalseQuestion = {}
+    trueOrFalseWrongQuestion = {}
+    multipleChoice, trueOrFalse = dividedQuestions
+    terms, definitions = qt
+    halfLength = len(trueOrFalse)/2
+    if type(halfLength) == float:
+        halfLength = round(halfLength)
+    for i in range(int(halfLength)):
+        randomInteger = random.choice(trueOrFalse)
+        trueOrFalse.remove(randomInteger)
+
+    for j in range (len(trueOrFalse)):
+        trueOrFalseQuestion.update({terms[trueOrFalse[j]] : definitions[trueOrFalse[j]]})
+
+    for k in range (len(trueOrFalseWrong)):
+        randomElement = random.randint(0, len(definitions)-1)
+        excludedElement = trueOrFalseWrong[k]
+        print(excludedElement)
+        while randomElement == excludedElement:
+            randomElement = random.choice(trueOrFalseWrong)
+        trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : definitions[randomElement]})
+    print(trueOrFalseQuestion, trueOrFalseWrongQuestion)
+    return trueOrFalseQuestion, trueOrFalseWrongQuestion
+def makeMultipleChoiceQuestions(dividedQuestions, qt):
+    multipleChoice, trueOrFalse = dividedQuestions
+    terms, definitions = qt
+    definitions[-1] = (definitions[-1])[:-1]
+    multipleChoiceQuestions = {}
+    print(multipleChoice)
+    for i in range(len(multipleChoice)):
+        multipleAnswers = []
+        definitionNum = []
+        for k in range(len(definitions)):
+            definitionNum.append(k)
+        multipleAnswers.append(definitions[multipleChoice[i]])
+        temp = multipleChoice[i]
+        definitionNum.remove(temp)
+        for j in range(3): #repeat 3 times for 3 fake answers
+            randomNumber = random.choice(definitionNum)
+            definitionNum.remove(randomNumber)
+            multipleAnswers.append(definitions[randomNumber])
+        multipleChoiceQuestions.update({terms[multipleChoice[i]] : multipleAnswers })
+    return multipleChoiceQuestions
+def percentageWindow(percentage, total_length):
+    return int(percentage / 100 * total_length)
+def quiz_window(window, num):
+    #Visuals
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[int(num)]
+    value = line.split("|")
+    td2 = seperateTermsDefinitions(value)
     
+ 
+    print("td2: ", td2)
+    splitedQuestions = splitQuestions(td2)
+    print("splitedQuestions: ", splitedQuestions)
+    questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
+    questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
+    print("questionTF: ", questionTF, questionTFWrong)
+    print('questionMC: ', questionMC)
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    score = 0
+    fullyCorrectScore = len(list(questionMC))
+    print(fullyCorrectScore)
+    start = time.time()
+    while questionMC != {}:
+        frame = Frame(canvas)
+        canvas_width_percentage = 50  # Width as a percentage of the window width
+        canvas_height_percentage = 50  # Height as a percentage of the window height
+        canvas_width_percentage2 = 70
+
+        # Calculate the pixel values based on percentages
+        window_width = window.winfo_screenwidth()
+        window_height = window.winfo_screenheight()
+        
+        canvas_width = percentageWindow(canvas_width_percentage, window_width)
+
+        canvas_height = percentageWindow(canvas_height_percentage, window_height)
+        canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+
+        title = "Quiz"
+        titlelbl = Label(frame, text = title)
+        titlelbl.pack()
+
+        listQuestionMC = dict(questionMC)
+
+        question = random.choice(list(questionMC)) #random term to act as question
+        questionMC.pop(question)
+        
+
+        answer = listQuestionMC.get(question)
+        correctAnswer = answer[0]
+        random.shuffle(answer)
+        print("correct: ", correctAnswer)
+        questionDescription = Label(frame, text = "Multiple Choice: Choose the matching definition")
+        questionDescription.pack()
+            
+
+        questionDisplay = Label(frame, text = question)
+        questionDisplay.pack()
+        button_pressed = BooleanVar()
+        answer_submitted = StringVar()
+        answerOneBtn = Button(frame, text = answer[0], command=lambda id = answer[0]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerTwoBtn = Button(frame, text = answer[1], command=lambda id = answer[1]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerThreeBtn = Button(frame, text = answer[2], command=lambda id = answer[2]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerFourthBtn = Button(frame, text = answer[3], command=lambda id = answer[3]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerOneBtn.pack()
+        answerTwoBtn.pack()
+        answerThreeBtn.pack()
+        answerFourthBtn.pack()
+        frame.wait_variable(button_pressed)
+    
+        if answer_submitted.get() == correctAnswer:
+            print("correct") 
+            score += 1
+    end = time.time()
+    print('int score: ', score)
+    print("Time taken to complete the quiz: ", end-start, "seconds")
+    print("score: ", str((score/fullyCorrectScore)*100) + "%")
 def quizMenu(window):
     window.delete('all')
     # Toplevel object which will be treated as a new window
@@ -56,12 +206,51 @@ def quizMenu(window):
 
     title = "Quiz Menu"
     titlelbl = Label(frame, text = title)
-    playbtn = Button(frame, text = 'Play quizzes')
+    playbtn = Button(frame, text = 'Play quizzes', command = lambda:[playQuizzesMenu(canvas)])
     backbtn = Button(frame, text = 'Back',
                      command = lambda:[homeMenu(canvas)])
     titlelbl.pack()
     playbtn.pack()
     backbtn.pack()
+def playQuizzesMenu(window):
+    folder = os.getcwd()
+    file = folder + "\\Studysets.csv"
+    f = open(file, "r")
+    lines = len(f.readlines())
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 20  # Height as a percentage of the window height
+
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+
+    # Create a Scrollbar widget
+    scrollbar = Scrollbar(root, orient=VERTICAL, command=canvas.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
+
+    # Configure the Canvas to use the Scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Create a Frame inside the Canvas
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
+
+    titlelbl = Label(frame, text = 'Remove Available Studysets')
+    titlelbl.pack
+    backbutton = Button(frame, text = "back",
+                        command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
+    
+    # Placing buttons
+    for i in range(lines):
+            button = Button(frame, text = titles(i),
+                            command = lambda id = i:[quiz_window(canvas, id), toggle_scrollbar(scrollbar)])
+            button.pack(side = "top", fill = X)
+    backbutton.pack()
 def homeMenu(window):
     '''
     The home menu of the program, where you can navigate to the flashcard section, quiz section and add and remove studyset section
@@ -240,7 +429,6 @@ def removeMenu(window):
     '''
     SHows the user a list of the available study sets, clicking on one will bring them to a page where they can edit or remove the entire studyset
     '''    
-    window.delete('all')
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
     f = open(file, "r")
