@@ -2,108 +2,175 @@ from tkinter import *
 from tkinter.ttk import *
 import os
 from os.path import exists
-def back(window, title):
+
+def flashcardHome(window):
     '''
-    One function which will return any page back a page
+    Flashcard menu where you can choose to start playing with flashcard sets.
     '''
-    if (title == "Flashcard Menu") or (title =="Quiz Menu"):
-        root.deiconify()
-    elif (title == "Creating Flashcard Set"):
-        window.destroy()
-        flashcardHome()
-    elif (title == "Remove Studysets"):
-        window.destroy()
-        flashcardHome()
-    elif (title == 'Editing "'):
-        removeMenu(window)
-def flashcardHome():
-    # Toplevel object which will be treated as a new window
-    flashcardMenu = Toplevel(root)
+    window.delete('all')
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 40  # Height as a percentage of the window height
 
-    flashcardMenu.title('Flashcard Home Menu')
-
-    flashcardMenu.attributes('-fullscreen', True)
-
-    root.withdraw()  # closes the root window
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     title = "Flashcard Menu"
-    titlelbl = Label(flashcardMenu, text = title)
-    playbtn = Button(flashcardMenu, text = 'Play flashcard')
-    addbtn = Button(flashcardMenu, text = 'Add flashcard',
-                    command = lambda:[addFlashcard(flashcardMenu)])
-    removebtn = Button(flashcardMenu, text = 'Remove flashcard',
-                       command = lambda:[removeMenu(flashcardMenu)])
-    backbtn = Button(flashcardMenu, text = 'Back',
-                     command = lambda:[back(flashcardMenu, title)])
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
-    playbtn.place(anchor = CENTER, relx = .3, rely = .3)
-    addbtn.place(anchor = CENTER, relx = .5, rely = .3)
-    removebtn.place(anchor = CENTER, relx = .7, rely = .3)
-    backbtn.place(anchor = CENTER, relx = .5, rely = .4)
-def quizMenu():
+    titlelbl = Label(frame, text = title)
+    playbtn = Button(frame, text = 'Play flashcard')
+    '''
+    addbtn = Button(frame, text = 'Add flashcard',
+                    command = lambda:[addFlashcard(frame)])
+    removebtn = Button(frame, text = 'Remove flashcard',
+                       command = lambda:[removeMenu(frame)])
+    '''
+    backbtn = Button(frame, text = 'Back',
+                     command = lambda:[homeMenu(canvas)])
+    
+    titlelbl.pack()
+    playbtn.pack()
+    backbtn.pack()
+    
+def quizMenu(window):
+    window.delete('all')
     # Toplevel object which will be treated as a new window
-    quizMenu = Toplevel(root)
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 40  # Height as a percentage of the window height
 
-    quizMenu.title('Quiz Home Menu')
-
-    quizMenu.attributes('-fullscreen', True)
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
 
     title = "Quiz Menu"
-    titlelbl = Label(quizMenu, text = title)
-    root.withdraw()  # closes the root window
-    playbtn = Button(quizMenu, text = 'Play quizzes')
-    addbtn = Button(quizMenu, text = 'Add quizzes')
-    removebtn = Button(quizMenu, text = 'Remove quizzes')
-    backbtn = Button(quizMenu, text = 'Back',
-                     command = lambda:[back(quizMenu, title)])
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
-    playbtn.place(anchor = CENTER, relx = .3, rely = .3)
-    addbtn.place(anchor = CENTER, relx = .5, rely = .3)
-    removebtn.place(anchor = CENTER, relx = .7, rely = .3)
-    backbtn.place(anchor = CENTER, relx = .5, rely = .4)
-def homeMenu():
+    titlelbl = Label(frame, text = title)
+    playbtn = Button(frame, text = 'Play quizzes')
+    backbtn = Button(frame, text = 'Back',
+                     command = lambda:[homeMenu(canvas)])
+    titlelbl.pack()
+    playbtn.pack()
+    backbtn.pack()
+def homeMenu(window):
+    '''
+    The home menu of the program, where you can navigate to the flashcard section, quiz section and add and remove studyset section
+    '''
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
+
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     title = "Studylet"
-    titlelbl = Label(root, text = title)
-    exitbtn = Button(root, text = 'Exit',
+    titlelbl = Label(frame, text = title)
+    exitbtn = Button(frame, text = 'Exit',
                 command = root.destroy)#Exit 
-    flashcardbtn = Button(root, text = 'Flashcard',
-                        command = lambda:[flashcardHome()])
-    quizbtn = Button(root, text = 'Quiz',
-                    command = lambda:[quizMenu()])
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
-    flashcardbtn.place(anchor = CENTER, relx = .3, rely = .4)
-    quizbtn.place(anchor = CENTER, relx = .7, rely = .4)
-    exitbtn.place(anchor = CENTER, relx = .5, rely = .6)
+    flashcardbtn = Button(frame, text = 'Flashcard',
+                        command = lambda:[flashcardHome(canvas)])
+    quizbtn = Button(frame, text = 'Quiz',
+                    command = lambda:[quizMenu(canvas)])
+    studysetbtn = Button(frame, text = "Studysets",
+                         command = lambda:[studysetMenu(canvas)])
+    titlelbl.pack()
+    flashcardbtn.pack()
+    quizbtn.pack()
+    studysetbtn.pack()
+    exitbtn.pack()
     # calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
     mainloop()
+def studysetMenu(window):
+    '''
+    allows users to add or remove study sets
+    '''
+    window.delete('all')
+    window.config(yscrollcommand=None)
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
 
-def addFlashcard(window):
-    window.destroy()
-    addingFlashcard = Toplevel()
-
-    addingFlashcard.title('Adding Flashcard')
-
-    addingFlashcard.attributes('-fullscreen', True)
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+    titlelbl = Label(frame, text = "Studysets")
+    addbtn = Button(frame, text = "Add Studyset", command = lambda:[addstudyset(canvas)])
+    removebtn = Button(frame, text = "Remove Studyset", command = lambda:[removeMenu(canvas)])
+    backbtn = Button(frame, text = "Back", command = lambda:[homeMenu(canvas)])
+    titlelbl.pack()
+    addbtn.pack()
+    removebtn.pack()
+    backbtn.pack()
+def addstudyset(window):
+    '''
+    Prompts the user for a title, term and definiton with an add and back button
+    '''
+    window.delete('all')
+    canvas_width_percentage = 40 # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
+    canvas_width_percentage2 = 60
+    canvas_width_percentage3 = 50
+    canvas_height_percentage3 = 20
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
+    canvas_width3 = percentageWindow(canvas_width_percentage3, window_width)
+    canvas_height3 = percentageWindow(canvas_height_percentage3, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+    frame2 = Frame(canvas)
+    canvas.create_window((canvas_width2, canvas_height), window=frame2, anchor=CENTER)
+    frame3 = Frame(canvas)
+    canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
     title = "Creating Flashcard Set"
-    titlePage = Label(addingFlashcard, text = title)
-    titlelbl = Label(addingFlashcard, text = "Title:")
-    titlebox = Entry(addingFlashcard)
-    termlbl = Label(addingFlashcard, text = "Term:")
-    termbox = Entry(addingFlashcard)
-    deflbl = Label(addingFlashcard, text = 'Definition:')
-    defbox = Entry(addingFlashcard)
-    addbtn = Button(addingFlashcard, text = 'Add',
-                    command = lambda:[addData(titlebox, termbox, defbox), addFlashcard2(addingFlashcard)])
-    backbtn = Button(addingFlashcard, text = 'Back',
-                     command = lambda:[back(addingFlashcard, title)])
-    titlePage.place(anchor = CENTER, relx = .5, rely = .1)
-    titlelbl.place(anchor = CENTER, relx = .4, rely = .2)
-    titlebox.place(anchor = CENTER, relx = .5, rely = .2)
-    termlbl.place(anchor = CENTER, relx = .4, rely= .3 )
-    termbox.place(anchor = CENTER, relx = .5, rely= .3 )
-    deflbl.place(anchor = CENTER, relx = .4, rely = .4)
-    defbox.place(anchor = CENTER, relx = .5, rely = .4)
-    addbtn.place(anchor = CENTER, relx = .4, rely = .5)
-    backbtn.place(anchor = CENTER,relx = .5, rely = .5 )
+    titlePage = Label(frame3, text = title)
+    titlelbl = Label(frame, text = "Title:")
+    titlebox = Entry(frame2)
+    termlbl = Label(frame, text = "Term:")
+    termbox = Entry(frame2)
+    deflbl = Label(frame, text = 'Definition:')
+    defbox = Entry(frame2)
+    addbtn = Button(frame, text = 'Add',
+                    command = lambda:[addData(titlebox, termbox, defbox), addFlashcard2(canvas)])
+    backbtn = Button(frame2, text = 'Back',
+                     command = lambda:[studysetMenu(canvas)])
+    titlePage.pack()
+    titlelbl.pack()
+    titlebox.pack()
+    termlbl.pack()
+    termbox.pack()
+    deflbl.pack()
+    defbox.pack()
+    addbtn.pack()
+    backbtn.pack()
 def addData(title, term, definition):
     title = title.get()
     term = term.get()
@@ -121,29 +188,46 @@ def addData(title, term, definition):
         f.write(title +"|" + term + "|" + definition)
         f.close()
 def addFlashcard2(window):
-    window.destroy()
-    addingFlashcard = Toplevel()
-
-    addingFlashcard.title('Adding Flashcard')
-
-    addingFlashcard.attributes('-fullscreen', True)
+    window.delete('all')
+    canvas_width_percentage = 40 # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
+    canvas_width_percentage2 = 60
+    canvas_width_percentage3 = 50
+    canvas_height_percentage3 = 20
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
+    canvas_width3 = percentageWindow(canvas_width_percentage3, window_width)
+    canvas_height3 = percentageWindow(canvas_height_percentage3, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+    frame2 = Frame(canvas)
+    canvas.create_window((canvas_width2, canvas_height), window=frame2, anchor=CENTER)
+    frame3 = Frame(canvas)
+    canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
     title = "Creating Flashcard Set"
-    titlePage = Label(addingFlashcard, text = title)
-    termlbl = Label(addingFlashcard, text = "Term:")
-    termbox = Entry(addingFlashcard)
-    deflbl = Label(addingFlashcard, text = 'Definition:')
-    defbox = Entry(addingFlashcard)
-    addbtn = Button(addingFlashcard, text = 'Add',
-                    command = lambda:[addData2(termbox, defbox), addFlashcard2(addingFlashcard)])
-    backbtn = Button(addingFlashcard, text = 'Back',
-                     command = lambda:[back(addingFlashcard, title)])
-    titlePage.place(anchor = CENTER, relx = .5, rely = .1)
-    termlbl.place(anchor = CENTER, relx = .4, rely= .2 )
-    termbox.place(anchor = CENTER, relx = .5, rely= .2 )
-    deflbl.place(anchor = CENTER, relx = .4, rely = .3)
-    defbox.place(anchor = CENTER, relx = .5, rely = .3)
-    addbtn.place(anchor = CENTER, relx = .4, rely = .4)
-    backbtn.place(anchor = CENTER,relx = .5, rely = .4 )
+    titlePage = Label(frame3, text = title)
+    termlbl = Label(frame, text = "Term:")
+    termbox = Entry(frame2)
+    deflbl = Label(frame, text = 'Definition:')
+    defbox = Entry(frame2)
+    addbtn = Button(frame, text = 'Add',
+                    command = lambda:[addData2(termbox, defbox), addFlashcard2(canvas)])
+    backbtn = Button(frame2, text = 'Back',
+                     command = lambda:[studysetMenu(canvas)])
+    titlePage.pack()
+    termlbl.pack()
+    termbox.pack()
+    deflbl.pack()
+    defbox.pack()
+    addbtn.pack()
+    backbtn.pack()
 def addData2(term, definition):
     term = term.get()
     definition = definition.get()
@@ -153,31 +237,28 @@ def addData2(term, definition):
     f.write("|" + term + "|" + definition)
     f.close()
 def removeMenu(window):
-    window.destroy()
-    removeMenu = Toplevel()
-
-    removeMenu.title('Adding Flashcard')
-
-    removeMenu.attributes('-fullscreen', True)
-    
+    '''
+    SHows the user a list of the available study sets, clicking on one will bring them to a page where they can edit or remove the entire studyset
+    '''    
+    window.delete('all')
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
     f = open(file, "r")
     lines = len(f.readlines())
-    canvas_width_percentage = 45 # Width as a percentage of the window width
+    canvas_width_percentage = 50 # Width as a percentage of the window width
     canvas_height_percentage = 20  # Height as a percentage of the window height
 
     # Calculate the pixel values based on percentages
-    window_width = removeMenu.winfo_screenwidth()
-    window_height = removeMenu.winfo_screenheight()
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
     canvas_width = percentageWindow(canvas_width_percentage, window_width)
     canvas_height = percentageWindow(canvas_height_percentage, window_height)
     # Create a Canvas widget
-    canvas = Canvas(removeMenu)
+    canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
     # Create a Scrollbar widget
-    scrollbar = Scrollbar(removeMenu, orient=VERTICAL, command=canvas.yview)
+    scrollbar = Scrollbar(root, orient=VERTICAL, command=canvas.yview)
     scrollbar.pack(side=RIGHT, fill=Y)
 
     # Configure the Canvas to use the Scrollbar
@@ -187,19 +268,17 @@ def removeMenu(window):
     frame = Frame(canvas)
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
-    # Page title
-    title = "Remove Studysets"
-    titlelbl = Label(removeMenu, text = title)
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
-    backbutton = Button(removeMenu, text = "back",
-                        command = lambda:[back(removeMenu, title)])
-    backbutton.place(anchor = CENTER, relx = .5, rely = .8)
+    titlelbl = Label(frame, text = 'Remove Available Studysets')
+    titlelbl.pack
+    backbutton = Button(frame, text = "back",
+                        command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
+    
     # Placing buttons
     for i in range(lines):
             button = Button(frame, text = titles(i),
-                            command = lambda id = i:[removeSet(removeMenu, id)])
+                            command = lambda id = i:[removeSet(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
-
+    backbutton.pack()
     
 def titles(lines):
     '''
@@ -227,11 +306,8 @@ def seperateTermsDefinitions(termsAndDefinitionsValues):
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
 def removeSet(window, num):
-    window.destroy()
-    title = 'Editing "'
-    remove = Toplevel()
-    remove.title = "Remove a studyset"
-    remove.attributes('-fullscreen', True)
+    window.delete('all')
+    window.config(yscrollcommand=None)
    
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
@@ -243,19 +319,22 @@ def removeSet(window, num):
     canvas_width_percentage = 30  # Width as a percentage of the window width
     canvas_height_percentage = 20  # Height as a percentage of the window height
     canvas_width_percentage2 = 70
-
+    canvas_width_percentage3 = 50
+    canvas_height_percentage3 = 10
     # Calculate the pixel values based on percentages
-    window_width = remove.winfo_screenwidth()
-    window_height = remove.winfo_screenheight()
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
     canvas_width = percentageWindow(canvas_width_percentage, window_width)
     canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
     canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas_width3 = percentageWindow(canvas_width_percentage3, window_width)
+    canvas_height3 = percentageWindow(canvas_height_percentage3, window_height)
      # Create a Canvas widget
-    canvas = Canvas(remove)
+    canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
     # Create a Scrollbar widget
-    scrollbar = Scrollbar(remove, orient=VERTICAL, command=canvas.yview)
+    scrollbar = Scrollbar(root, orient=VERTICAL, command=canvas.yview)
     scrollbar.pack(side=RIGHT, fill=Y)
 
     # Configure the Canvas to use the Scrollbar
@@ -267,6 +346,9 @@ def removeSet(window, num):
     
     frame2 = Frame(canvas)
     canvas.create_window((canvas_width2, canvas_height), window =frame2, anchor = CENTER)
+    
+    frame3 = Frame(canvas)
+    canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
     termlbl = Label(frame, text = 'Terms:')
     deflbl = Label(frame2, text = 'Definitions:')
     termlbl.pack()
@@ -283,29 +365,52 @@ def removeSet(window, num):
         entry2.insert(END, defintions[i])
         entry2.pack()
         defEntry.append(entry2)
-    titlelbl = Label(remove, text = title + titles(num)+'"')
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .1)
-    savebtn = Button(remove, text = 'Save',
-                     command = lambda:[save(termEntry, defEntry),])
-    savebtn.place(anchor = CENTER, relx = .5, rely = .8)
-    backbtn = Button(remove, text = 'Back',
-                     command = lambda:[back(remove, title)])
-    backbtn.place(anchor = CENTER, relx = .3, rely = .8)
-    removebtn = Button(remove, text = "Remove Entire Studyset",
-                       command = lambda:[removeLine(line)])
+    titlelbl = Label(frame3, text = 'Edit studyset "' + titles(num)+'"')
+    titlelbl.pack()
+    savebtn = Button(frame3, text = 'Save',
+                     command = lambda:[save(termEntry, defEntry, num),toggle_scrollbar(scrollbar),removeLine(num)])
+    savebtn.pack()
+    backbtn = Button(frame, text = 'Back',
+                     command = lambda:[removeMenu(canvas),toggle_scrollbar(scrollbar)])
+    backbtn.pack()
+    removebtn = Button(frame2, text = "Remove Entire Studyset",
+                       command = lambda:[removeLine(num),toggle_scrollbar(scrollbar), removeMenu(canvas)])
+    removebtn.pack()
     file.close()
-def save(term, definition):
-    termsAndDefintions = term, definition
-    print(termsAndDefintions)
-    for i in range(len(termsAndDefintions)):
+def save(term, definition, num):
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[int(num)]
+    print(line)
+    print(len(term))
+    for i in range(len(term)):
         t = term[i].get()
         d = definition[i].get()
         print(t)
         print(d)
+    file.close()
+    
+def removeLine(num):
+    num = num + 1
+    fileName = os.getcwd() + '\\Studysets.csv'
+    remove_line_from_csv(fileName, num)
+def remove_line_from_csv(file_path, line_number):
+    file = open(file_path, 'r')
+    lines = file.readlines()
+    file.close()
+    filew = open(file_path, 'w', newline = '')
+    for index, line in enumerate( lines, start = 1):
+        if index != line_number:
+            filew.write(line)
+    filew.close()
+def toggle_scrollbar(scrollbar):
+        scrollbar.pack_forget()
+
 # create main window 
 root = Tk()
 
 root.title("Studylet")
 root.attributes('-fullscreen', True)
 
-homeMenu()
+homeMenu(root)
