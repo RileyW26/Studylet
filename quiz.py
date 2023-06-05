@@ -28,9 +28,8 @@ def splitQuestions(questionTerms):
     trueOrFalseQuestions = []
     for i in range(len(terms)):
         questions.append(i)
-    halfLength = len(questions)/2
-    if type(halfLength) == float:
-        halfLength = round(halfLength)
+    halfLength = len(questions)//2
+   
     for i in range(int(halfLength)):
         randomInteger = random.choice(questions)
         questions.remove(randomInteger)
@@ -83,12 +82,15 @@ def makeMultipleChoiceQuestions(dividedQuestions, qt):
 
 td = openFile()
 td2 = seperateTermsDefinitions(td)
+print("td2: ", td2)
 splitedQuestions = splitQuestions(td2)
 questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
 questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
 print("splitedQuestions: ", splitedQuestions)
 print("questionTF: ", questionTF, questionTFWrong)
 print('questionMC: ', questionMC)
+def percentageWindow(percentage, total_length):
+    return int(percentage / 100 * total_length)
 def quizMenu(questionTF, questionMC, window):
     # Toplevel object which will be treated as a new window
     
@@ -100,43 +102,53 @@ def quizMenu(questionTF, questionMC, window):
 '''
 
     canvas = Canvas(window)
-    Canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
     frame = Frame(canvas)
-    canvas_width_percentage = 30  # Width as a percentage of the window width
-    canvas_height_percentage = 20  # Height as a percentage of the window height
-    canvas_width_percentage2 = 70
+    canvas_width_percentage = 50  # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
 
     # Calculate the pixel values based on percentages
-    window_width = remove.winfo_screenwidth()
-    window_height = remove.winfo_screenheight()
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    
     canvas_width = percentageWindow(canvas_width_percentage, window_width)
-    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
     canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     title = "Quiz Menu"
-    titlelbl = Label(quizMenu, text = title)
 
-    startbtn = Button(quizMenu, text = 'Start', command = lambda:[quiz_window(quizMenu, questionTF, questionMC)])
-    titlelbl.place(anchor = CENTER, relx = .5, rely = .2)
-    startbtn.place(anchor = CENTER, relx = .5, rely = .5)
-    root.withdraw()  # closes the root window
+    titlelbl = Label(frame, text = title)
 
-def quiz_window(quizMenu, questionTF, questionMC):
+    startbtn = Button(frame, text = 'Start', command = lambda:[quiz_window(quizMenu, questionTF, questionMC, canvas)])
+    titlelbl.pack()
+    startbtn.pack()
+
+
+def quiz_window(quizMenu, questionTF, questionMC, window):
     #Visuals
-    quizMenu.destroy()
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
     score = 0
     fullyCorrectScore = len(list(questionMC))
     print(fullyCorrectScore)
     start = time.time()
     while questionMC != {}:
-        quiz = Toplevel()
+        frame = Frame(canvas)
+        canvas_width_percentage = 50  # Width as a percentage of the window width
+        canvas_height_percentage = 50  # Height as a percentage of the window height
+        canvas_width_percentage2 = 70
 
-        quiz.title('Quiz')
+        # Calculate the pixel values based on percentages
+        window_width = window.winfo_screenwidth()
+        window_height = window.winfo_screenheight()
+        
+        canvas_width = percentageWindow(canvas_width_percentage, window_width)
 
-        quiz.attributes('-fullscreen', True)
+        canvas_height = percentageWindow(canvas_height_percentage, window_height)
+        canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
 
         title = "Quiz"
-        titlelbl = Label(quiz, text = title)
-        titlelbl.place(anchor = CENTER, relx = 0.5, rely = 0.1)
+        titlelbl = Label(frame, text = title)
+        titlelbl.pack()
 
         listQuestionMC = dict(questionMC)
 
@@ -148,28 +160,27 @@ def quiz_window(quizMenu, questionTF, questionMC):
         correctAnswer = answer[0]
         random.shuffle(answer)
         print("correct: ", correctAnswer)
-        questionDescription = Label(quiz, text = "Multiple Choice: Choose the matching definition")
-        questionDescription.place(anchor = CENTER, relx = .5, rely = .2)
+        questionDescription = Label(frame, text = "Multiple Choice: Choose the matching definition")
+        questionDescription.pack()
             
 
-        questionDisplay = Label(quiz, text = question)
-        questionDisplay.place(anchor = CENTER, relx = .5, rely = .3)
+        questionDisplay = Label(frame, text = question)
+        questionDisplay.pack()
         button_pressed = BooleanVar()
         answer_submitted = StringVar()
-        answerOneBtn = Button(quiz, text = answer[0], command=lambda id = answer[0]:[answer_submitted.set(id), button_pressed.set(True)])
-        answerTwoBtn = Button(quiz, text = answer[1], command=lambda id = answer[1]:[answer_submitted.set(id), button_pressed.set(True)])
-        answerThreeBtn = Button(quiz, text = answer[2], command=lambda id = answer[2]:[answer_submitted.set(id), button_pressed.set(True)])
-        answerFourthBtn = Button(quiz, text = answer[3], command=lambda id = answer[3]:[answer_submitted.set(id), button_pressed.set(True)])
-        answerOneBtn.place(anchor = CENTER, relx = .3, rely = .5)
-        answerTwoBtn.place(anchor = CENTER, relx = .7, rely = .5)
-        answerThreeBtn.place(anchor = CENTER, relx = .3, rely = .6)
-        answerFourthBtn.place(anchor = CENTER, relx = .7, rely = .6)
-        quiz.wait_variable(button_pressed)
+        answerOneBtn = Button(frame, text = answer[0], command=lambda id = answer[0]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerTwoBtn = Button(frame, text = answer[1], command=lambda id = answer[1]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerThreeBtn = Button(frame, text = answer[2], command=lambda id = answer[2]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerFourthBtn = Button(frame, text = answer[3], command=lambda id = answer[3]:[answer_submitted.set(id), button_pressed.set(True)])
+        answerOneBtn.pack()
+        answerTwoBtn.pack()
+        answerThreeBtn.pack()
+        answerFourthBtn.pack()
+        frame.wait_variable(button_pressed)
     
         if answer_submitted.get() == correctAnswer:
             print("correct") 
             score += 1
-        quiz.destroy()
     end = time.time()
     print('int score: ', score)
     print("Time taken to complete the quiz: ", end-start, "seconds")
