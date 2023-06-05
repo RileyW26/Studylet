@@ -115,12 +115,14 @@ def studysetMenu(window):
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     frame = Frame(canvas)
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
-    titlelbl = Label(frame, text = "Studysets")
+    titlelbl = Label(frame, text = "Studyset Menu")
     addbtn = Button(frame, text = "Add Studyset", command = lambda:[addstudyset(canvas)])
     removebtn = Button(frame, text = "Remove Studyset", command = lambda:[removeMenu(canvas)])
+    add2btn = Button(frame,text = "Adding prexisitng studysets, through a csv", command = lambda:[addExisting(canvas)])
     backbtn = Button(frame, text = "Back", command = lambda:[homeMenu(canvas)])
     titlelbl.pack()
     addbtn.pack()
+    add2btn.pack()
     removebtn.pack()
     backbtn.pack()
 def addstudyset(window):
@@ -282,7 +284,7 @@ def removeMenu(window):
     
 def titles(lines):
     '''
-    Returns a string of all the elements before | in studysets.csv
+    Returns a string of all the elements before | in studysets.csv, the title of the studyset
     '''
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
@@ -307,7 +309,6 @@ def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
 def removeSet(window, num):
     window.delete('all')
-    window.config(yscrollcommand=None)
    
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
@@ -378,19 +379,16 @@ def removeSet(window, num):
     removebtn.pack()
     file.close()
 def save(term, definition, num):
+    title = titles(num)
     fileName = os.getcwd() + '\\Studysets.csv'
-    file = open(fileName, "r")
-    text = file.readlines()
-    line = text[int(num)]
-    print(line)
-    print(len(term))
+    file = open(fileName, "a")
+    file.write("\n" + title)
     for i in range(len(term)):
         t = term[i].get()
         d = definition[i].get()
-        print(t)
-        print(d)
+        file.write("|" + t + "|" + d)
     file.close()
-    
+
 def removeLine(num):
     num = num + 1
     fileName = os.getcwd() + '\\Studysets.csv'
@@ -405,8 +403,47 @@ def remove_line_from_csv(file_path, line_number):
             filew.write(line)
     filew.close()
 def toggle_scrollbar(scrollbar):
-        scrollbar.pack_forget()
+    '''
+    removes the scrollbar
+    '''
+    scrollbar.pack_forget()
+def addExisting(window):
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 40  # Height as a percentage of the window height
 
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    # Create a Canvas widget
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+
+    titlelbl = Label(frame, text = "Add prexisitng studysets, through a csv")
+    currentdirectory = Label(frame, text = "Directory: " + os.getcwd())
+    csventry = Entry(frame)
+    addbtn = Button(frame, text = 'Add',
+                    command = lambda:[addCsv(csventry)])
+    backbtn = Button(frame, text = 'Back',
+                     command = lambda:[studysetMenu(canvas)])
+    titlelbl.pack()
+    currentdirectory.pack()
+    csventry.pack()
+    addbtn.pack()
+    backbtn.pack()
+def addCsv(entry):
+    fileName = os.getcwd() + "\\" + entry.get()
+    file = open(fileName, "r")
+    text = file.readlines()
+    print(text)
+    file.close()
+    studysets = os.getcwd() + "\\Studysets.csv"
+    file = open(studysets, "a")
+    file.writelines("\n")
+    file.writelines(text) 
 # create main window 
 root = Tk()
 
