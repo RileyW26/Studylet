@@ -117,7 +117,7 @@ def quiz_window(window, num):
     value = line.split("|")
     td2 = seperateTermsDefinitions(value)
     splitedQuestions = splitQuestions(td2)
-    print(td2)
+    quizCheck = quizChecker()
     questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
     questionsTF = {**questionTF, **questionTFWrong}
     questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
