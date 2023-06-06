@@ -61,7 +61,6 @@ def splitQuestions(questionTerms):
         randomInteger = random.choice(questions)
         questions.remove(randomInteger)
         trueOrFalseQuestions.append(randomInteger)
-    print("2: ", questions, trueOrFalseQuestions)
     return questions, trueOrFalseQuestions
 def makeTrueOrFalseQuestions(dividedQuestions, qt):
     trueOrFalseWrong = []
@@ -69,31 +68,28 @@ def makeTrueOrFalseQuestions(dividedQuestions, qt):
     trueOrFalseWrongQuestion = {}
     multipleChoice, trueOrFalse = dividedQuestions
     terms, definitions = qt
-    halfLength = len(trueOrFalse)/2
-    if type(halfLength) == float:
-        halfLength = round(halfLength)
+    definitions[-1] = (definitions[-1])[:-1]
+    halfLength = len(trueOrFalse)//2
+
     for i in range(int(halfLength)):
         randomInteger = random.choice(trueOrFalse)
         trueOrFalse.remove(randomInteger)
-
+        trueOrFalseWrong.append(randomInteger)
     for j in range (len(trueOrFalse)):
-        trueOrFalseQuestion.update({terms[trueOrFalse[j]] : definitions[trueOrFalse[j]]})
+        trueOrFalseQuestion.update({terms[trueOrFalse[j]] : [definitions[trueOrFalse[j]], "true"]})
 
     for k in range (len(trueOrFalseWrong)):
         randomElement = random.randint(0, len(definitions)-1)
         excludedElement = trueOrFalseWrong[k]
-        print(excludedElement)
         while randomElement == excludedElement:
             randomElement = random.choice(trueOrFalseWrong)
-        trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : definitions[randomElement]})
-    print(trueOrFalseQuestion, trueOrFalseWrongQuestion)
+        trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : [definitions[randomElement],"false"]})
     return trueOrFalseQuestion, trueOrFalseWrongQuestion
 def makeMultipleChoiceQuestions(dividedQuestions, qt):
     multipleChoice, trueOrFalse = dividedQuestions
     terms, definitions = qt
-    definitions[-1] = (definitions[-1])[:-1]
+    definitions[-1] = (definitions[-1]).strip() #removes \n from last list element
     multipleChoiceQuestions = {}
-    print(multipleChoice)
     for i in range(len(multipleChoice)):
         multipleAnswers = []
         definitionNum = []
@@ -110,6 +106,8 @@ def makeMultipleChoiceQuestions(dividedQuestions, qt):
     return multipleChoiceQuestions
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
+def quizChecker():
+    pass
 def quiz_window(window, num):
     #Visuals
     fileName = os.getcwd() + '\\Studysets.csv'
@@ -118,27 +116,24 @@ def quiz_window(window, num):
     line = text[int(num)]
     value = line.split("|")
     td2 = seperateTermsDefinitions(value)
-    
- 
-    print("td2: ", td2)
     splitedQuestions = splitQuestions(td2)
-    print("splitedQuestions: ", splitedQuestions)
+    print(td2)
     questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
+    questionsTF = {**questionTF, **questionTFWrong}
     questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
-    print("questionTF: ", questionTF, questionTFWrong)
-    print('questionMC: ', questionMC)
+    print('questionTF: ', questionTF)
+    print('questionTFWrong: ', questionTFWrong)
+    print("questionsTF: ", questionsTF)
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
-    score = 0
-    fullyCorrectScore = len(list(questionMC))
-    print(fullyCorrectScore)
-    start = time.time()
+    score = 0 #Will be added to when a correct answer is submitted and compared with the fully correct score to find percentage
+    print(type(questionTF), type(questionTFWrong))
+    fullyCorrectScore = len(list(questionMC)) + len(list(questionTF)) + len(list(questionTFWrong)) #Adding len of questionMC, questionTF, questionTFWrong to find total score for the quiz
+    start = time.time() #Start timer
     while questionMC != {}:
         frame = Frame(canvas)
         canvas_width_percentage = 50  # Width as a percentage of the window width
         canvas_height_percentage = 50  # Height as a percentage of the window height
-        canvas_width_percentage2 = 70
-
         # Calculate the pixel values based on percentages
         window_width = window.winfo_screenwidth()
         window_height = window.winfo_screenheight()
@@ -151,14 +146,14 @@ def quiz_window(window, num):
         title = "Quiz"
         titlelbl = Label(frame, text = title)
         titlelbl.pack()
-
-        listQuestionMC = dict(questionMC)
+    
+        dictQuestionMC = dict(questionMC) #Temporary variable to store questionMC, as when we pop questions from questionMC, we need to still be able to call the answers
 
         question = random.choice(list(questionMC)) #random term to act as question
         questionMC.pop(question)
         
 
-        answer = listQuestionMC.get(question)
+        answer = dictQuestionMC.get(question)
         correctAnswer = answer[0]
         random.shuffle(answer)
         print("correct: ", correctAnswer)
@@ -179,14 +174,86 @@ def quiz_window(window, num):
         answerThreeBtn.pack()
         answerFourthBtn.pack()
         frame.wait_variable(button_pressed)
-    
         if answer_submitted.get() == correctAnswer:
             print("correct") 
             score += 1
+        frame.destroy()
+    while questionsTF !={}:
+        frame = Frame(canvas)
+        canvas_width_percentage = 50  # Width as a percentage of the window width
+        canvas_height_percentage = 50  # Height as a percentage of the window height
+        # Calculate the pixel values based on percentages
+        window_width = window.winfo_screenwidth()
+        window_height = window.winfo_screenheight()
+        canvas_width = percentageWindow(canvas_width_percentage, window_width)
+        canvas_height = percentageWindow(canvas_height_percentage, window_height)
+        canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+
+        dictQuestionsTF = dict(questionsTF) #Temporary variable to store questionMC, as when we pop questions from questionMC, we need to still be able to call the answers
+
+        question = random.choice(list(questionsTF)) #random term to act as question
+        questionsTF.pop(question)
+        
+
+        answer = dictQuestionsTF.get(question)
+        print(question)
+        print(answer)
+        correctAnswer = answer[1]
+        print("correct: ", correctAnswer)
+        title = "Quiz"
+        titlelbl = Label(frame, text = title)
+        titlelbl.pack()
+        questionDescription = Label(frame, text = "True or False: Decide whether the definition is true or false")
+        questionDescription.pack()
+        questionDisplay = Label(frame, text = question)
+        questionDisplay.pack()
+        answerDisplay = Label(frame, text = answer[0])
+        answerDisplay.pack()
+        button_pressed = BooleanVar()
+        answer_submitted = StringVar()
+        trueBtn = Button(frame, text = "True", command=lambda id = "true":[answer_submitted.set(id), button_pressed.set(True)])
+        falseBtn = Button(frame, text = "False", command=lambda id = "false":[answer_submitted.set(id), button_pressed.set(True)])
+        trueBtn.pack()
+        falseBtn.pack()
+        frame.wait_variable(button_pressed)
+        if answer_submitted.get() == correctAnswer:
+            print("correct") 
+            score += 1
+        frame.destroy()
     end = time.time()
     print('int score: ', score)
-    print("Time taken to complete the quiz: ", end-start, "seconds")
-    print("score: ", str((score/fullyCorrectScore)*100) + "%")
+    timeCompletion = end-start
+    scorePercentage = str((score/fullyCorrectScore)*100)
+    print("Time taken to complete the quiz: ", timeCompletion, "seconds")
+    print("score: ", scorePercentage + "%")
+    leaderboard(canvas, fileName, num)
+def leaderboard(window, fileName, num):
+    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    isFile = os.path.isfile(leaderboardFile)
+    file = open(fileName, "r")
+    text = file.readlines()
+    if isFile == False:
+        fileLB = open(leaderboardFile, "w")
+
+    print(text)
+    line = text[int(num)]
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    frame = Frame(canvas)
+    canvas_width_percentage = 50  # Width as a percentage of the window width
+    canvas_height_percentage = 50  # Height as a percentage of the window height
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
+    
+    title = "Quiz Leaderboard"
+    titlelbl = Label(frame, text = title)
+    titlelbl.pack()
 def quizMenu(window):
     window.delete('all')
     # Toplevel object which will be treated as a new window
@@ -218,7 +285,7 @@ def playQuizzesMenu(window):
     f = open(file, "r")
     lines = len(f.readlines())
     canvas_width_percentage = 50 # Width as a percentage of the window width
-    canvas_height_percentage = 20  # Height as a percentage of the window height
+    canvas_height_percentage = 50  # Height as a percentage of the window height
 
     # Calculate the pixel values based on percentages
     window_width = window.winfo_screenwidth()
