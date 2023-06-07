@@ -1,5 +1,6 @@
 from tkinter import * 
 from tkinter.ttk import *
+from tkinter import messagebox
 import csv
 import os
 from os.path import exists
@@ -106,8 +107,19 @@ def makeMultipleChoiceQuestions(dividedQuestions, qt):
     return multipleChoiceQuestions
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
-def quizChecker():
-    pass
+def quizChecker(termsAndDefinitions):
+    '''
+    Checks if the amount of terms of a study set is less than four
+
+    If it is not, 
+    
+    It will pop up a message box notifying the user that there needs to be atleast 4 pairs of terms and definitions
+
+    it will return True so in quiz_window, it returns to avoid any errors
+    '''
+    if len(termsAndDefinitions[0]) < 4:
+        messagebox.showinfo("Quiz Requirements", "To start a quiz with this study set, make sure there is atleast 4 pairs of terms and definitions")
+        return True
 def quiz_window(window, num):
     #Visuals
     fileName = os.getcwd() + '\\Studysets.csv'
@@ -117,13 +129,12 @@ def quiz_window(window, num):
     value = line.split("|")
     td2 = seperateTermsDefinitions(value)
     splitedQuestions = splitQuestions(td2)
-    quizCheck = quizChecker()
+    quizCheck = quizChecker(td2)
+    if quizCheck == True:
+        return
     questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
     questionsTF = {**questionTF, **questionTFWrong}
     questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
-    print('questionTF: ', questionTF)
-    print('questionTFWrong: ', questionTFWrong)
-    print("questionsTF: ", questionsTF)
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     score = 0 #Will be added to when a correct answer is submitted and compared with the fully correct score to find percentage
@@ -156,7 +167,6 @@ def quiz_window(window, num):
         answer = dictQuestionMC.get(question)
         correctAnswer = answer[0]
         random.shuffle(answer)
-        print("correct: ", correctAnswer)
         questionDescription = Label(frame, text = "Multiple Choice: Choose the matching definition")
         questionDescription.pack()
             
@@ -175,7 +185,6 @@ def quiz_window(window, num):
         answerFourthBtn.pack()
         frame.wait_variable(button_pressed)
         if answer_submitted.get() == correctAnswer:
-            print("correct") 
             score += 1
         frame.destroy()
     while questionsTF !={}:
@@ -196,10 +205,7 @@ def quiz_window(window, num):
         
 
         answer = dictQuestionsTF.get(question)
-        print(question)
-        print(answer)
         correctAnswer = answer[1]
-        print("correct: ", correctAnswer)
         title = "Quiz"
         titlelbl = Label(frame, text = title)
         titlelbl.pack()
@@ -221,22 +227,60 @@ def quiz_window(window, num):
             score += 1
         frame.destroy()
     end = time.time()
-    print('int score: ', score)
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
     print("Time taken to complete the quiz: ", timeCompletion, "seconds")
     print("score: ", scorePercentage + "%")
-    leaderboard(canvas, fileName, num)
-def leaderboard(window, fileName, num):
+    leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
+def updateLeaderboard(leaderboardFile, num, time, score):
+    temp_file = "temp.csv"  # Temporary file to store modified data
+
+    with open(leaderboardFile, 'r') as file:
+        lines = file.readlines()  # Read all lines from the CSV file
+
+    # Modify the desired line with the new data
+    scoreEntry = score + "|" + str(time)
+    print(lines)
+    print("num: ", num)
+    print(lines[num])
+    lines[num] = lines[num].strip() + "|" + scoreEntry + "\n"
+
+    with open(temp_file, 'w') as file:
+        file.writelines(lines)  # Write all modified lines to the temporary file
+
+    # Replace the original file with the modified file
+    os.remove(leaderboardFile)
+    os.rename(temp_file, leaderboardFile)
+def bubbleSort(arr):
+    #outer loop neeeds to run one time less than the length of the list
+    #this loop dictates the number of times we push elements to the end
+    for i in range(len(arr)-1):
+        print("i: ", i)
+        # innner loop responsible for swaps
+        for j in range(len(arr) - i - 1):
+            print("j: ", j)
+            #swap element
+            if arr[j] < arr[j+1]:
+                temp = arr[j] #hold left variable
+                arr[j] = arr[j+1]#replaces left with right
+                arr[j+1] = temp#replaces right with left
+                print("swap")
+            print(arr)
+def leaderboard(window, fileName, num, time, score):
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
     isFile = os.path.isfile(leaderboardFile)
     file = open(fileName, "r")
     text = file.readlines()
     if isFile == False:
         fileLB = open(leaderboardFile, "w")
-
-    print(text)
-    line = text[int(num)]
+        for i in range(len(text)):
+            line = text[i]
+            value = line.split("|")
+            title = value[0]
+            print(title)
+            fileLB.writelines(title + "\n")
+        fileLB.close()
+    updateLeaderboard(leaderboardFile, num, time, score)
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     frame = Frame(canvas)
@@ -254,6 +298,8 @@ def leaderboard(window, fileName, num):
     title = "Quiz Leaderboard"
     titlelbl = Label(frame, text = title)
     titlelbl.pack()
+    backbtn = Button(frame, text = 'Back',command = lambda:[homeMenu(canvas)])
+    backbtn.pack()
 def quizMenu(window):
     window.delete('all')
     # Toplevel object which will be treated as a new window
@@ -318,6 +364,7 @@ def playQuizzesMenu(window):
                             command = lambda id = i:[quiz_window(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
+    f.close()
 def homeMenu(window):
     '''
     The home menu of the program, where you can navigate to the flashcard section, quiz section and add and remove studyset section
@@ -547,17 +594,6 @@ def titles(lines):
     title = termsAndDefinitions[0]
     file.close()
     return title
-def seperateTermsDefinitions(termsAndDefinitionsValues):
-    terms = []
-    definitions = []
-    for i in range (1, len(termsAndDefinitionsValues)):
-        if i % 2 == 0:
-            definitions.append(termsAndDefinitionsValues[i])
-        elif i % 2 != 0: 
-            terms.append(termsAndDefinitionsValues[i])
-    #print(terms)
-    #print(definitions)
-    return terms, definitions
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
 def removeSet(window, num):
