@@ -269,7 +269,7 @@ def addstudyset(window):
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addData(titlebox, termbox, defbox), addFlashcard2(canvas)])
+                    command = lambda:[addData(titlebox, termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
                      command = lambda:[studysetMenu(canvas)])
     titlePage.pack()
@@ -281,23 +281,38 @@ def addstudyset(window):
     defbox.pack()
     addbtn.pack()
     backbtn.pack()
-def addData(title, term, definition):
+def addData(title, term, definition, window):
+    '''
+    Checks if a file exists, if it does not then enters write mode and writes data taken from entry boxes.
+    If file exists then enters append mode and appends data taken from entry boxes
+    '''
     title = title.get()
     term = term.get()
     definition = definition.get()
-    folder = os.getcwd()
-    file = folder + "\\Studysets.csv"
-    fileExists = exists(file)
-    print(file)
-    if fileExists == True:
-        f = open(file, "a")
-        f.write("\n" + title +"|" + term + "|" + definition)
-        f.close()
+    if (title == '') or (title.isspace()):
+        messagebox.showerror("Error", "Title Field can not be blank")
+    elif (term == '') or (term.isspace()):
+        messagebox.showerror("Error", "Term Field can not be blank")
+    elif (definition == '') or (definition.isspace()):
+        messagebox.showerror("Error", "Definition Field can not be blank")
     else:
-        f = open(file, "w")
-        f.write(title +"|" + term + "|" + definition)
-        f.close()
+        folder = os.getcwd()
+        file = folder + "\\Studysets.csv"
+        fileExists = exists(file)
+        print(file)
+        if fileExists == True:
+            f = open(file, "a")
+            f.write("\n" + title +"|" + term + "|" + definition)
+            f.close()
+        else:
+            f = open(file, "w")
+            f.write(title +"|" + term + "|" + definition)
+            f.close()
+        addFlashcard2(window)
 def addFlashcard2(window):
+    '''
+    Window that has data boxes for adding a term and definition, only appears after the first flashcard add menu has been gone through
+    '''
     window.delete('all')
     canvas_width_percentage = 40 # Width as a percentage of the window width
     canvas_height_percentage = 50  # Height as a percentage of the window height
@@ -328,7 +343,7 @@ def addFlashcard2(window):
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addData2(termbox, defbox), addFlashcard2(canvas)])
+                    command = lambda:[addData2(termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
                      command = lambda:[studysetMenu(canvas)])
     titlePage.pack()
@@ -338,17 +353,23 @@ def addFlashcard2(window):
     defbox.pack()
     addbtn.pack()
     backbtn.pack()
-def addData2(term, definition):
+def addData2(term, definition, window):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
     '''
     term = term.get()
     definition = definition.get()
-    folder = os.getcwd()
-    file = folder + "\\Studysets.csv"
-    f = open(file, "a")
-    f.write("|" + term + "|" + definition)
-    f.close()
+    if (term == '') or (term.isspace()):
+        messagebox.showerror("Error", "Term Field can not be blank")
+    elif (definition == '') or (definition.isspace()):
+        messagebox.showerror("Error", "Definition Field can not be blank")
+    else:
+        folder = os.getcwd()
+        file = folder + "\\Studysets.csv"
+        f = open(file, "a")
+        f.write("|" + term + "|" + definition)
+        f.close()
+        addFlashcard2(window)
 def removeMenu(window):
     '''
     SHows the user a list of the available study sets, clicking on one will bring them to a page where they can edit or remove the entire studyset
@@ -496,7 +517,7 @@ def removeSet(window, num):
         entry2.pack()
         defEntry.append(entry2)
     savebtn = Button(frame4, text = 'Save',
-                     command = lambda:[save(termEntry, defEntry, num),toggle_scrollbar(scrollbar), removeMenu(canvas)])
+                     command = lambda:[save(termEntry, defEntry, num, canvas),toggle_scrollbar(scrollbar)])
     savebtn.pack()
     backbtn = Button(frame, text = 'Back',
                      command = lambda:[removeMenu(canvas),toggle_scrollbar(scrollbar)])
@@ -504,22 +525,40 @@ def removeSet(window, num):
     removebtn = Button(frame2, text = "Remove Entire Studyset",
                        command = lambda:[removeLine(num),toggle_scrollbar(scrollbar), removeMenu(canvas)])
     removebtn.pack()
-def save(term, definition, num):
+def checkValid(term, definition):
+    '''
+    Checks if the term and definition boxes are empty
+    if they are return false, if they have data return true
+    '''
+    for i in range(len(term)):
+        t = term[i].get()
+        d = definition[i].get()
+        if (t =='') or (t.isspace()):
+            messagebox.showerror("Error", "Term field can not be empty")
+            return False
+        elif (d=='') or (d.isspace()):
+            messagebox.showerror("Error", "Definition field can not be empty")
+            return False
+        else: 
+            continue
+    return True
+def save(term, definition, num,window):
     '''
     appends the term and definition values pulled from entries that the user can edit 
     '''
     title = titles(num)
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "a")
-    
-    file.write(title)
-    for i in range(len(term)):
-        t = term[i].get()
-        d = definition[i].get()
-        stripd = d.replace('\n', '')
-        file.write("|" + t + "|" + stripd)
-    file.close()
-    removeLine(num)
+    if checkValid(term, definition) == True:
+        file.write(title)
+        for i in range(len(term)):
+            t = term[i].get()
+            d = definition[i].get()
+            stripd = d.replace('\n', '')
+            file.write("|" + t + "|" + stripd)
+        file.close()
+        removeLine(num)
+        removeMenu(window)
 def strip(line):
     '''
     Strips lines of the line break

@@ -1,11 +1,18 @@
 import tkinter as tk
-from tkinter import filedialog as fd 
 
-def callback():
-    name= fd.askopenfilename() 
-    print(name)
-    
-errmsg = 'Error!'
-tk.Button(text='Click to Open File', 
-       command=callback).pack(fill=tk.X)
-tk.mainloop()
+def check_entry():
+    text = entry.get()
+    if text.isspace():
+        print("The entry contains only spaces")
+    else:
+        print("The entry does not contain only spaces")
+
+root = tk.Tk()
+
+entry = tk.Entry(root)
+entry.pack()
+
+button = tk.Button(root, text="Check Entry", command=check_entry)
+button.pack()
+
+root.mainloop()
