@@ -2,7 +2,8 @@ from tkinter import *
 from tkinter.ttk import *
 import os
 from os.path import exists
-
+from tkinter import filedialog as fd 
+from tkinter import messagebox
 def flashcardHome(window):
     '''
     Flashcard menu where you can choose to start playing with flashcard sets.
@@ -67,11 +68,83 @@ def flashcardList(window):
     # Placing buttons
     for i in range(lines):
             button = Button(frame, text = titles(i),
-                            command = lambda id = i:[flashcard(canvas), toggle_scrollbar(scrollbar)])
+                            command = lambda id = i:[flashcard(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
-def flashcard(window):
-    pass
+def flashcard(window, num):
+    '''
+    Creates a base for the flashcards to be displayed
+    '''
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[int(num)]
+    value = line.split("|")
+    td2 = seperateTermsDefinitions(value)
+    terms, definitions = td2
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    count = 0
+    flashcardShow(canvas, num, terms, definitions, count)
+def flashcardShow(window, num, t, d, count):
+    '''
+    Will display the flashcard as well as a next and back button 
+    '''
+    window.delete('all')
+    canvas_width_percentage = 50 # Width as a percentage of the window width
+    canvas_height_percentage = 20  # Height as a percentage of the window height
+    canvas_height_percentage2 = 50
+    canvas_height_percentage3 = 80
+    canvas_width_percentage2 = 40
+    canvas_width_percentage3 = 60
+    # Calculate the pixel values based on percentages
+    window_width = window.winfo_screenwidth()
+    window_height = window.winfo_screenheight()
+    canvas_width = percentageWindow(canvas_width_percentage, window_width)
+    canvas_height = percentageWindow(canvas_height_percentage, window_height)
+    canvas_height2 = percentageWindow(canvas_height_percentage2, window_height)
+    canvas_height3 = percentageWindow(canvas_height_percentage3, window_height)
+    canvas_width2 = percentageWindow(canvas_width_percentage2, window_width)
+    canvas_width3 = percentageWindow(canvas_width_percentage3, window_width)
+    max = len(t) - 1
+    frame = Frame(window)
+    window.create_window((canvas_width, canvas_height), window = frame, anchor = CENTER)
+    titlelbl = Label(frame, text = 'Playing: "' + titles(num) + '"')
+    titlelbl.pack()
+    frame2 = Frame(window)
+    window.create_window((canvas_width, canvas_height2), window = frame2, anchor = CENTER)
+    termbutton = Button(frame2, text = strip(t[count]), command = lambda id = count:[showCorrosponding(id, d, termbutton, t)])
+    frame3 = Frame(window)
+    window.create_window((canvas_width2, canvas_height3), window = frame3, anchor = CENTER)
+    frame4 = Frame(window)
+    window.create_window((canvas_width3, canvas_height3), window = frame4, anchor = CENTER)
+    backbutton = Button(frame3, text = "Back", 
+                        command = lambda:[flashcardShow(window, num, t, d, count-2)])
+    nextbtn = Button(frame4, text = "Next", command = lambda:[flashcardShow(window, num, t, d, count)])
+
+    homebtn = Button(frame4, text = "Back Home", command = lambda:[flashcardList(window)])
+    homebtn2 = Button(frame3, text = "Back Home", command = lambda:[flashcardList(window)])
+    if count == max:
+        termbutton.pack()
+        backbutton.pack()
+        homebtn.pack()
+    elif count == 0:
+        termbutton.pack()
+        homebtn2.pack()
+        nextbtn.pack()    
+    else:
+        termbutton.pack()
+        backbutton.pack()
+        nextbtn.pack()
+    count += 1
+def showCorrosponding(num, definitions, button, t):
+   '''
+   configures the flashcard to show the definition if the term is currently on the flashcard and vice versa
+   '''
+   if button.cget("text") == t[num]:
+       button.config(text = strip(definitions[num]))
+   else:
+       button.config(text = strip(t[num]))
 def quizMenu(window):
     window.delete('all')
     # Toplevel object which will be treated as a new window
@@ -343,8 +416,6 @@ def seperateTermsDefinitions(termsAndDefinitionsValues):
             definitions.append(termsAndDefinitionsValues[i])
         elif i % 2 != 0: 
             terms.append(termsAndDefinitionsValues[i])
-    #print(terms)
-    #print(definitions)
     return terms, definitions
 def percentageWindow(percentage, total_length):
     '''
@@ -425,7 +496,7 @@ def removeSet(window, num):
         entry2.pack()
         defEntry.append(entry2)
     savebtn = Button(frame4, text = 'Save',
-                     command = lambda:[save(termEntry, defEntry, num),toggle_scrollbar(scrollbar), removeMenu(canvas)  ])
+                     command = lambda:[save(termEntry, defEntry, num),toggle_scrollbar(scrollbar), removeMenu(canvas)])
     savebtn.pack()
     backbtn = Button(frame, text = 'Back',
                      command = lambda:[removeMenu(canvas),toggle_scrollbar(scrollbar)])
@@ -483,6 +554,7 @@ def addExisting(window):
     '''
     Window that gives the user their current direcctory and has an entry box for a csv file to be input
     '''
+    window.delete('all')
     canvas_width_percentage = 50 # Width as a percentage of the window width
     canvas_height_percentage = 40  # Height as a percentage of the window height
 
@@ -498,28 +570,39 @@ def addExisting(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
 
     titlelbl = Label(frame, text = "Add prexisitng studysets, through a csv")
-    currentdirectory = Label(frame, text = "Directory: " + os.getcwd())
-    csventry = Entry(frame)
+    stepslbl = Label(frame, text = "Please note there must be a | between each term and definition\n Example: title|term|definition|term2|definition2")
+
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addCsv(csventry),studysetMenu(canvas)])
+                    command = lambda:[callFile(canvas)])
     backbtn = Button(frame, text = 'Back',
                      command = lambda:[studysetMenu(canvas)])
     titlelbl.pack()
-    currentdirectory.pack()
-    csventry.pack()
+    stepslbl.pack()
     addbtn.pack()
     backbtn.pack()
-def addCsv(entry):
+def callFile(window):
+    '''
+    Opens a dialogue box, if the user selects a file that is not a csv it will not be allowed
+    '''
+    file=fd.askopenfilename() 
+    if file != '':
+        if file[-3:] == 'csv':
+            addCsv(file)
+            studysetMenu(window)
+        else:
+            messagebox.showinfo("ERROR", "Only csvs are allowed")
+def addCsv(file):
     '''
     reads the csv that the user inputted and appends it onto the studysets.csv that the programs reads
     '''
-    fileName = os.getcwd() + "\\" + entry.get()
-    file = open(fileName, "r")
+    file = open(file, "r")
     text = file.readlines()
     file.close()
     studysets = os.getcwd() + "\\Studysets.csv"
     file = open(studysets, "a")
-    file.writelines(text + "\n") 
+    for i in range(len(text)):
+        file.writelines(text[i])
+    file.writelines("\n") 
 # create main window 
 root = Tk()
 
