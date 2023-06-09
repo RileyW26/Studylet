@@ -271,7 +271,7 @@ def addstudyset(window):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addData(titlebox, termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[studysetMenu(canvas)])
+                     command = lambda:[studysetMenu(canvas),])
     titlePage.pack()
     titlelbl.pack()
     titlebox.pack()
@@ -302,7 +302,7 @@ def addData(title, term, definition, window):
         print(file)
         if fileExists == True:
             f = open(file, "a")
-            f.write("\n" + title +"|" + term + "|" + definition)
+            f.write(title +"|" + term + "|" + definition)
             f.close()
         else:
             f = open(file, "w")
@@ -345,7 +345,7 @@ def addFlashcard2(window):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addData2(termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[studysetMenu(canvas)])
+                     command = lambda:[backStudyset(canvas)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -353,6 +353,13 @@ def addFlashcard2(window):
     defbox.pack()
     addbtn.pack()
     backbtn.pack()
+def backStudyset(canvas):
+    folder = os.getcwd()
+    file = folder + "\\Studysets.csv"
+    f = open(file, "a")
+    f.write("\n")
+    f.close()
+    studysetMenu(canvas)
 def addData2(term, definition, window):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
@@ -458,10 +465,11 @@ def removeSet(window, num):
     values = seperateTermsDefinitions(value)
     terms, defintions = values
     canvas_width_percentage = 30  # Width as a percentage of the window width
-    canvas_height_percentage = 20  # Height as a percentage of the window height
+    canvas_height_percentage = 30  # Height as a percentage of the window height
     canvas_width_percentage2 = 70
     canvas_width_percentage3 = 50
     canvas_height_percentage3 = 10
+    canvas_height_percentage4 = 30
     # Calculate the pixel values based on percentages
     window_width = window.winfo_screenwidth()
     window_height = window.winfo_screenheight()
@@ -470,6 +478,7 @@ def removeSet(window, num):
     canvas_height = percentageWindow(canvas_height_percentage, window_height)
     canvas_width3 = percentageWindow(canvas_width_percentage3, window_width)
     canvas_height3 = percentageWindow(canvas_height_percentage3, window_height)
+    canvas_height4 = percentageWindow(canvas_height_percentage4, window_height)
      # Create a Canvas widget
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
@@ -492,7 +501,7 @@ def removeSet(window, num):
     canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
 
     frame4 = Frame(canvas)
-    canvas.create_window((canvas_width3, canvas_height), window = frame4, anchor = CENTER)
+    canvas.create_window((canvas_width3, canvas_height4), window = frame4, anchor = CENTER)
     termlbl = Label(frame, text = 'Terms:')
     deflbl = Label(frame2, text = 'Definitions:')
     termlbl.pack()
@@ -554,8 +563,8 @@ def save(term, definition, num,window):
         for i in range(len(term)):
             t = term[i].get()
             d = definition[i].get()
-            stripd = d.replace('\n', '')
-            file.write("|" + t + "|" + stripd)
+            file.write("|" + t + "|" + strip(d))
+        file.write("\n")
         file.close()
         removeLine(num)
         removeMenu(window)
@@ -582,7 +591,7 @@ def remove_line_from_csv(file_path, line_number):
     filew = open(file_path, 'w', newline = '')
     for index, line in enumerate( lines, start = 1):
         if index != line_number:
-            filew.write(strip(line) + '\n')
+            filew.write(strip(line)+"\n")
     filew.close()
 def toggle_scrollbar(scrollbar):
     '''
