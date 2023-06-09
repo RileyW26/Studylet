@@ -1,2 +1,4 @@
+entage of the window height
 
-    title = "Remove Studysets"
+    # Calculate the pixel values based on percentages
+    window_widt
