@@ -14,7 +14,6 @@ def seperateTermsDefinitions(termsAndDefinitionsValues):
     Sorts the terms and definitions into two seperate lists, and returns the two lists, discarding the title
     
     '''
-    print(termsAndDefinitionsValues)
     terms = []#declare list
     definitions = []#declare list
     for i in range (1, len(termsAndDefinitionsValues)):#start from 1 to ignore title
@@ -38,8 +37,7 @@ def splitQuestions(questionTerms):
     trueOrFalseQuestions = []
     for i in range(len(terms)):
         questions.append(i)
-    halfLength = len(questions)
-   
+    halfLength = len(questions)/2
     for i in range(int(halfLength)):
         randomInteger = random.choice(questions)
         questions.remove(randomInteger)
@@ -247,7 +245,6 @@ def quiz_window(window, num):
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     score = 0 #Will be added to when a correct answer is submitted and compared with the fully correct score to find percentage
-    print(type(questionTF), type(questionTFWrong))
     fullyCorrectScore = len(list(questionMC)) + len(list(questionTF)) + len(list(questionTFWrong)) #Adding len of questionMC, questionTF, questionTFWrong to find total score for the quiz
     start = time.time() #Start timer
     while questionMC != {}:
@@ -315,18 +312,12 @@ def quiz_window(window, num):
         falseBtn.pack()
         frame.wait_variable(button_pressed)
         if answer_submitted.get() == correctAnswer:
-            print("correct") 
             score += 1
         frame.destroy()
     end = time.time()
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
-def updateLeaderboardAdd(title):
-    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
-    with open(leaderboardFile, 'r') as file:
-        file.append(title)
-    file.close()
 def updateleaderboardEdit(title):
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
     with open(leaderboardFile, 'r') as file:
@@ -344,10 +335,7 @@ def updateLeaderboard(leaderboardFile, num, time, score):
     lineSeperatedList[-1] = (lineSeperatedList[-1]).strip()
     title = lineSeperatedList[0]
     scores, times = seperateTermsDefinitions(lineSeperatedList)
-    print("scores: ", scores)
     orderedScores, orderedTimes = bubbleSort(scores, times)
-    print("orderedScores; ", orderedScores)
-    print("orderedTimes:", orderedTimes)
     lines[num] = title
     for i in range(len(orderedScores)):
         lines[num] = lines[num].strip() + "|" + orderedScores[i] + "|" + orderedTimes[i] +"\n"
@@ -362,9 +350,7 @@ def updateLeaderboard(leaderboardFile, num, time, score):
 def bubbleSort(arr, secondArr):
     #outer loop neeeds to run one time less than the length of the list
     #this loop dictates the number of times we push elements to the end
-    print(arr, secondArr)
     for i in range(len(arr)-1):
-        print("i: ", i)
         # innner loop responsible for swaps
         for j in range(len(arr) - i - 1):
             #swap element
@@ -379,7 +365,6 @@ def bubbleSort(arr, secondArr):
     return arr, secondArrModified
 def bubbleSortTime(arr, secondArr):
     for i in range(len(arr)-1):
-        print("i: ", i)
         # innner loop responsible for swaps
         for j in range(len(arr) - i - 1):
             #swap element
@@ -391,18 +376,6 @@ def bubbleSortTime(arr, secondArr):
     return secondArr
 def leaderboard(window, fileName, num, time, score):
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
-    isFile = os.path.isfile(leaderboardFile)
-    file = open(fileName, "r")
-    text = file.readlines()
-    if isFile == False:
-        fileLB = open(leaderboardFile, "w")
-        for i in range(len(text)):
-            line = text[i]
-            value = line.split("|")
-            title = value[0]
-            print(title)
-            fileLB.writelines(title + "\n")
-        fileLB.close()
     orderedScores, orderedTimes = updateLeaderboard(leaderboardFile, num, time, score)
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
@@ -439,6 +412,20 @@ def leaderboard(window, fileName, num, time, score):
     tree.pack()
     backbtn = Button(frame, text = 'Back',command = lambda:[homeMenu(canvas)])
     backbtn.pack()
+def leaderboardFileCreation(fileName):
+    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    isFile = os.path.isfile(leaderboardFile)
+    file = open(fileName, "r")
+    text = file.readlines()
+    if isFile == False:
+        fileLB = open(leaderboardFile, "w")
+        for i in range(len(text)):
+            line = text[i]
+            value = line.split("|")
+            title = value[0]
+            print(title)
+            fileLB.writelines(title + "\n")
+        fileLB.close()
 def disable_column_resizing(event):
     # Prevent the Treeview widget from resizing columns
     return "break"
@@ -516,6 +503,8 @@ def homeMenu(window):
     quizbtn.pack()
     studysetbtn.pack()
     exitbtn.pack()
+    fileName = os.getcwd() + "\Studysets.csv"
+    leaderboardFileCreation(fileName)
     # calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
     mainloop()
 def studysetMenu(window):
@@ -615,7 +604,6 @@ def addData(title, term, definition, window):
         folder = os.getcwd()
         file = folder + "\\Studysets.csv"
         fileExists = exists(file)
-        print(file)
         if fileExists == True:
             f = open(file, "a")
             f.write(title +"|" + term + "|" + definition)
@@ -661,7 +649,7 @@ def addFlashcard2(window, title):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addData2(termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas), updateLeaderboardAdd(title)])
+                     command = lambda:[backStudyset(canvas)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
