@@ -970,21 +970,34 @@ def save(term, definition, num,window):
     appends the term and definition values pulled from entries that the user can edit 
     '''
     title = titles(num)
-    fileName = os.getcwd() + '\\Studysets.csv'
-    file = open(fileName, "a")
+
     if checkValid(term, definition) == True:
-        file.write(title)
-        for i in range(len(term)):
-            t = term[i].get()
-            d = definition[i].get()
-            file.write("|" + t + "|" + strip(d))
-        file.write("\n")
-        file.close()
-        editLine(num)
+        editLine(term, definition, num)
         updateleaderboardEdit(num)
         removeMenu(window)
-def editLine(num):
-    pass
+def editLine(term, definition, num):
+    fileName = os.getcwd() + "\\Studysets.csv"
+    temp_file = "temp.csv"  # Temporary file to store modified data
+    with open(fileName, 'r') as file:
+        lines = file.readlines()  # Read all lines from the CSV file
+
+    # Modify the desired line with the new data
+    lineSeperatedList = lines[num].split("|")
+    lineSeperatedList[-1] = (lineSeperatedList[-1]).strip()
+    title = lineSeperatedList[0]
+    lines[num] = title
+    for i in range(len(term)):
+        t = term[i].get()
+        d = definition[i].get()
+        lines[num] = lines[num].strip() + "|" + t + "|" + strip(d) +"\n"
+        file.close()
+    with open(temp_file, 'w') as file:
+        file.writelines(lines)  # Write all modified lines to the temporary file
+
+    # Replace the original file with the modified file
+
+    os.remove(fileName)
+    os.rename(temp_file, fileName)
 def strip(line):
     '''
     Strips lines of the line break
