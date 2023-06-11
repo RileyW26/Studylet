@@ -318,11 +318,22 @@ def quiz_window(window, num):
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
-def updateleaderboardEdit(title):
+def updateleaderboardEdit(num):
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
-        file.append(title)
-    file.close()
+        lines = file.readlines()  # Read all lines from the CSV file
+
+    lineSeperatedList = lines[num].split("|")
+    title = lineSeperatedList[0]
+    lines[num] = title + "\n"
+    with open(temp_file, 'w') as file:
+        file.writelines(lines)  # Write all modified lines to the temporary file
+
+    # Replace the original file with the modified file
+
+    os.remove(leaderboardFile)
+    os.rename(temp_file, leaderboardFile)
 def updateLeaderboard(leaderboardFile, num, time, score):
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
@@ -726,7 +737,7 @@ def removeMenu(window):
     
 def addToExisting(window):
     '''
-    SHows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
+    Shows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
     '''    
     window.delete('all')
     folder = os.getcwd()
@@ -832,6 +843,8 @@ def addDataToExisting(term, definition, window, num):
         f.write(line + "|" + term + "|" + definition + "\n")
         f.close()
         addTo(window, num)
+        #updateleaderboardEdit(num)
+        
 def titles(lines):
     '''
     Returns a string of all the elements before | in studysets.csv, the title of the studyset
@@ -967,8 +980,11 @@ def save(term, definition, num,window):
             file.write("|" + t + "|" + strip(d))
         file.write("\n")
         file.close()
-        removeLine(num)
+        editLine(num)
+        updateleaderboardEdit(num)
         removeMenu(window)
+def editLine(num):
+    pass
 def strip(line):
     '''
     Strips lines of the line break
