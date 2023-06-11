@@ -7,34 +7,6 @@ from os.path import exists
 import random
 import time
 from tkinter import filedialog as fd 
-def flashcardHome(window):
-    '''
-    Flashcard menu where you can choose to start playing with flashcard sets.
-    '''
-    window.delete('all')
-    canvas_width_percentage = 50 # Width as a percentage of the window width
-    canvas_height_percentage = 40  # Height as a percentage of the window height
-
-    # Calculate the pixel values based on percentages
-    window_width = window.winfo_screenwidth()
-    window_height = window.winfo_screenheight()
-    canvas_width = percentageWindow(canvas_width_percentage, window_width)
-    canvas_height = percentageWindow(canvas_height_percentage, window_height)
-    # Create a Canvas widget
-    canvas = Canvas(window)
-    canvas.pack(side=LEFT, fill=BOTH, expand=True)
-    frame = Frame(canvas)
-    canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
-    title = "Flashcard Menu"
-    titlelbl = Label(frame, text = title)
-    playbtn = Button(frame, text = 'Play flashcard',
-                     command = lambda:[flashcardList(canvas)])
-    backbtn = Button(frame, text = 'Back',
-                     command = lambda:[homeMenu(canvas)])
-    
-    titlelbl.pack()
-    playbtn.pack()
-    backbtn.pack()
 def seperateTermsDefinitions(termsAndDefinitionsValues):
     '''
     This function takes a list of the title, terms and definitions
@@ -66,7 +38,7 @@ def splitQuestions(questionTerms):
     trueOrFalseQuestions = []
     for i in range(len(terms)):
         questions.append(i)
-    halfLength = len(questions)//2
+    halfLength = len(questions)
    
     for i in range(int(halfLength)):
         randomInteger = random.choice(questions)
@@ -162,7 +134,7 @@ def flashcardList(window):
     titlelbl = Label(frame, text = 'Available Studysets')
     titlelbl.pack()
     backbutton = Button(frame, text = "back",
-                        command = lambda:[flashcardHome(canvas), toggle_scrollbar(scrollbar)])
+                        command = lambda:[homeMenu(canvas), toggle_scrollbar(scrollbar)])
     
     # Placing buttons
     for i in range(lines):
@@ -244,11 +216,6 @@ def showCorrosponding(num, definitions, button, t):
        button.config(text = strip(definitions[num]))
    else:
        button.config(text = strip(t[num]))
-def quizMenu(window):
-    window.delete('all')
-    # Toplevel object which will be treated as a new window
-    canvas_width_percentage = 50 # Width as a percentage of the window width
-    canvas_height_percentage = 40  # Height as a percentage of the window height
 def frames(canvas, window):
     frame = Frame(canvas)
     # Calculate the pixel values based on percentages
@@ -353,6 +320,16 @@ def quiz_window(window, num):
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
+def updateLeaderboardAdd(title):
+    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    with open(leaderboardFile, 'r') as file:
+        file.append(title)
+    file.close()
+def updateleaderboardEdit(title):
+    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    with open(leaderboardFile, 'r') as file:
+        file.append(title)
+    file.close()
 def updateLeaderboard(leaderboardFile, num, time, score):
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
@@ -445,11 +422,11 @@ def leaderboard(window, fileName, num, time, score):
     tree = Treeview(frame)
     tree["columns"] = ("Score", "Time")
     tree.column("#0", width=0, stretch=NO)  # Adjust the width of the default column
-    
     # Define column headings
     tree.heading("#0", text="", anchor=W)  # Specify an empty string for the default column heading
     tree.heading("Score", text="Score")
     tree.heading("Time", text="Time")
+    tree.bind("<ButtonPress-1>", disable_column_resizing)
     for i in range(len(orderedScores)):
     
     # Insert data rows
@@ -460,6 +437,10 @@ def leaderboard(window, fileName, num, time, score):
     tree.pack()
     backbtn = Button(frame, text = 'Back',command = lambda:[homeMenu(canvas)])
     backbtn.pack()
+def disable_column_resizing(event):
+    # Prevent the Treeview widget from resizing columns
+    return "break"
+
 def playQuizzesMenu(window):
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
@@ -523,7 +504,7 @@ def homeMenu(window):
     exitbtn = Button(frame, text = 'Exit',
                 command = root.destroy)#Exit 
     flashcardbtn = Button(frame, text = 'Flashcard',
-                        command = lambda:[flashcardHome(canvas)])
+                        command = lambda:[flashcardList(canvas)])
     quizbtn = Button(frame, text = 'Quiz',
                     command = lambda:[playQuizzesMenu(canvas)])
     studysetbtn = Button(frame, text = "Studysets",
@@ -640,7 +621,7 @@ def addData(title, term, definition, window):
             f.write(title +"|" + term + "|" + definition)
             f.close()
         addFlashcard2(window)
-def addFlashcard2(window):
+def addFlashcard2(window, title):
     '''
     Window that has data boxes for adding a term and definition, only appears after the first flashcard add menu has been gone through
     '''
@@ -676,7 +657,7 @@ def addFlashcard2(window):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addData2(termbox, defbox, canvas)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas)])
+                     command = lambda:[backStudyset(canvas), updateLeaderboardAdd(title)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -899,6 +880,8 @@ def removeLine(num):
     num = num + 1
     fileName = os.getcwd() + '\\Studysets.csv'
     remove_line_from_csv(fileName, num)
+    leaderboardFileName = os.getcwd() + "\\StudyletLeaderboard.csv"
+    remove_line_from_csv(leaderboardFileName, num)
 def remove_line_from_csv(file_path, line_number):
     '''
     Removes a line from a csv
