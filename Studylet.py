@@ -326,7 +326,10 @@ def updateleaderboardEdit(num):
 
     lineSeperatedList = lines[num].split("|")
     title = lineSeperatedList[0]
-    lines[num] = title + "\n"
+    if len(lineSeperatedList) == 1:
+        lines[num] = title
+    else: 
+        lines[num] = title + "\n"
     with open(temp_file, 'w') as file:
         file.writelines(lines)  # Write all modified lines to the temporary file
 
@@ -438,7 +441,6 @@ def leaderboardFileCreation(fileName):
             line = text[i]
             value = line.split("|")
             title = value[0]
-            print(title)
             fileLB.writelines(title + "\n")
         fileLB.close()
 def disable_column_resizing(event):
@@ -511,7 +513,7 @@ def homeMenu(window):
                         command = lambda:[flashcardList(canvas)])
     quizbtn = Button(frame, text = 'Quiz',
                     command = lambda:[playQuizzesMenu(canvas)])
-    studysetbtn = Button(frame, text = "Studysets",
+    studysetbtn = Button(frame, text = "Manage Studysets",
                          command = lambda:[studysetMenu(canvas)])
     titlelbl.pack()
     flashcardbtn.pack()
@@ -543,9 +545,9 @@ def studysetMenu(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     titlelbl = Label(frame, text = "Studyset Menu")
     addbtn = Button(frame, text = "Add Studyset", command = lambda:[addstudyset(canvas)])
-    removebtn = Button(frame, text = "Remove Studyset", command = lambda:[removeMenu(canvas)])
-    addto = Button(frame, text = "Add to existing studyset", command = lambda:[addToExisting(canvas)])
-    add2btn = Button(frame,text = "Adding prexisitng studysets, through a csv", command = lambda:[addExisting(canvas)])
+    removebtn = Button(frame, text = "Remove/Edit Studysets", command = lambda:[removeMenu(canvas)])
+    addto = Button(frame, text = "Add to Existing Studysets", command = lambda:[addToExisting(canvas)])
+    add2btn = Button(frame,text = "Adding Prexisting Studysets, through a csv", command = lambda:[addExisting(canvas)])
     backbtn = Button(frame, text = "Back", command = lambda:[homeMenu(canvas)])
     titlelbl.pack()
     addbtn.pack()
@@ -663,7 +665,7 @@ def addFlashcard2(window, title):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addData2(termbox, defbox, canvas, title)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas), updateLeaderboardAdd(title)])
+                     command = lambda:[backStudyset(canvas)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -675,9 +677,10 @@ def backStudyset(canvas):
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
     f = open(file, "a")
+    f.write("\n")
     f.close()
     studysetMenu(canvas)
-def addData2(term, definition, window, title):
+def addData2(term, definition, window):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
     '''
@@ -726,7 +729,9 @@ def removeMenu(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
     titlelbl = Label(frame, text = 'Remove Available Studysets')
+    warninglbl = Label(frame, text = '*Editing or removing an existing studyset will delete the saved leaderboard scores')
     titlelbl.pack()
+    warninglbl.pack()
     backbutton = Button(frame, text = "back",
                         command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
     
@@ -736,7 +741,7 @@ def removeMenu(window):
                             command = lambda id = i:[removeSet(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
-    
+
 def addToExisting(window):
     '''
     Shows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
@@ -770,7 +775,9 @@ def addToExisting(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
     titlelbl = Label(frame, text = 'Add to an existing studyset')
+    warninglbl = Label(frame, text = '*Adding to an existing studyset will delete the saved leaderboard scores')
     titlelbl.pack()
+    warninglbl.pack()
     backbutton = Button(frame, text = "back",
                         command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
     
@@ -816,7 +823,7 @@ def addTo(window, num):
     addbtn = Button(frame, text = 'Add',
                     command = lambda:[addDataToExisting(termbox, defbox, canvas, num)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas), updateleaderboardEdit(num)])
+                     command = lambda:[backStudyset(canvas)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -846,7 +853,7 @@ def addDataToExisting(term, definition, window, num):
 
         os.remove(fileName)
         os.rename(temp_file, fileName)
-
+        updateleaderboardEdit(num)
         addTo(window, num)
 def titles(lines):
     '''
@@ -1082,10 +1089,18 @@ def addCsv(file):
     text = file.readlines()
     file.close()
     studysets = os.getcwd() + "\\Studysets.csv"
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
     file = open(studysets, "a")
     for i in range(len(text)):
         file.writelines(text[i])
     file.writelines("\n") 
+    fileLB = open(leaderboardFile, "a")
+    for i in range(len(text)):
+        line = text[i].split("|")
+        fileLB.writelines(line[0])
+        fileLB.writelines("\n") 
+    file.close()
+    fileLB.close()
 # create main window 
 root = Tk()
 
