@@ -319,14 +319,17 @@ def quiz_window(window, num):
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
 def updateleaderboardEdit(num):
-    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
         lines = file.readlines()  # Read all lines from the CSV file
 
     lineSeperatedList = lines[num].split("|")
     title = lineSeperatedList[0]
-    lines[num] = title + "\n"
+    if len(lineSeperatedList) == 1:
+        lines[num] = title
+    else: 
+        lines[num] = title + "\n"
     with open(temp_file, 'w') as file:
         file.writelines(lines)  # Write all modified lines to the temporary file
 
@@ -334,6 +337,10 @@ def updateleaderboardEdit(num):
 
     os.remove(leaderboardFile)
     os.rename(temp_file, leaderboardFile)
+def updateLeaderboardAdd(title):
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
+    with open(leaderboardFile, 'a') as file:
+        file.write(title + "\n")
 def updateLeaderboard(leaderboardFile, num, time, score):
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
@@ -434,7 +441,6 @@ def leaderboardFileCreation(fileName):
             line = text[i]
             value = line.split("|")
             title = value[0]
-            print(title)
             fileLB.writelines(title + "\n")
         fileLB.close()
 def disable_column_resizing(event):
@@ -507,7 +513,7 @@ def homeMenu(window):
                         command = lambda:[flashcardList(canvas)])
     quizbtn = Button(frame, text = 'Quiz',
                     command = lambda:[playQuizzesMenu(canvas)])
-    studysetbtn = Button(frame, text = "Studysets",
+    studysetbtn = Button(frame, text = "Manage Studysets",
                          command = lambda:[studysetMenu(canvas)])
     titlelbl.pack()
     flashcardbtn.pack()
@@ -539,9 +545,9 @@ def studysetMenu(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     titlelbl = Label(frame, text = "Studyset Menu")
     addbtn = Button(frame, text = "Add Studyset", command = lambda:[addstudyset(canvas)])
-    removebtn = Button(frame, text = "Remove Studyset", command = lambda:[removeMenu(canvas)])
-    addto = Button(frame, text = "Add to existing studyset", command = lambda:[addToExisting(canvas)])
-    add2btn = Button(frame,text = "Adding prexisitng studysets, through a csv", command = lambda:[addExisting(canvas)])
+    removebtn = Button(frame, text = "Remove/Edit Studysets", command = lambda:[removeMenu(canvas)])
+    addto = Button(frame, text = "Add to Existing Studysets", command = lambda:[addToExisting(canvas)])
+    add2btn = Button(frame,text = "Adding Prexisting Studysets, through a csv", command = lambda:[addExisting(canvas)])
     backbtn = Button(frame, text = "Back", command = lambda:[homeMenu(canvas)])
     titlelbl.pack()
     addbtn.pack()
@@ -623,7 +629,7 @@ def addData(title, term, definition, window):
             f = open(file, "w")
             f.write(title +"|" + term + "|" + definition)
             f.close()
-        addFlashcard2(window)
+        addFlashcard2(window, title)
 def addFlashcard2(window, title):
     '''
     Window that has data boxes for adding a term and definition, only appears after the first flashcard add menu has been gone through
@@ -651,16 +657,15 @@ def addFlashcard2(window, title):
     canvas.create_window((canvas_width2, canvas_height), window=frame2, anchor=CENTER)
     frame3 = Frame(canvas)
     canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
-    title = "Creating Flashcard Set"
-    titlePage = Label(frame3, text = title)
+    titlePage = Label(frame3, text = "Creating Flashcard Set")
     termlbl = Label(frame, text = "Term:")
     termbox = Entry(frame2)
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addData2(termbox, defbox, canvas)])
+                    command = lambda:[addData2(termbox, defbox, canvas, title)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas)])
+                     command = lambda:[studysetMenu(canvas), updateLeaderboardAdd(title)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -668,14 +673,7 @@ def addFlashcard2(window, title):
     defbox.pack()
     addbtn.pack()
     backbtn.pack()
-def backStudyset(canvas):
-    folder = os.getcwd()
-    file = folder + "\\Studysets.csv"
-    f = open(file, "a")
-    f.write("\n")
-    f.close()
-    studysetMenu(canvas)
-def addData2(term, definition, window):
+def addData2(term, definition, window, title):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
     '''
@@ -691,7 +689,7 @@ def addData2(term, definition, window):
         f = open(file, "a")
         f.write("|" + term + "|" + definition)
         f.close()
-        addFlashcard2(window)
+        addFlashcard2(window, title)
 def removeMenu(window):
     '''
     SHows the user a list of the available study sets, clicking on one will bring them to a page where they can edit or remove the entire studyset
@@ -724,7 +722,9 @@ def removeMenu(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
     titlelbl = Label(frame, text = 'Remove Available Studysets')
+    warninglbl = Label(frame, text = '*Editing or removing an existing studyset will delete the saved leaderboard scores')
     titlelbl.pack()
+    warninglbl.pack()
     backbutton = Button(frame, text = "back",
                         command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
     
@@ -734,7 +734,7 @@ def removeMenu(window):
                             command = lambda id = i:[removeSet(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
-    
+
 def addToExisting(window):
     '''
     Shows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
@@ -768,7 +768,9 @@ def addToExisting(window):
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=NW)
 
     titlelbl = Label(frame, text = 'Add to an existing studyset')
+    warninglbl = Label(frame, text = '*Adding to an existing studyset will delete the saved leaderboard scores')
     titlelbl.pack()
+    warninglbl.pack()
     backbutton = Button(frame, text = "back",
                         command = lambda:[studysetMenu(canvas), toggle_scrollbar(scrollbar)])
     
@@ -812,9 +814,9 @@ def addTo(window, num):
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addDataToExisting(termbox, defbox, canvas,num)])
+                    command = lambda:[addDataToExisting(termbox, defbox, canvas, num)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas)])
+                     command = lambda:[studysetMenu(canvas)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -833,18 +835,19 @@ def addDataToExisting(term, definition, window, num):
     elif (definition == '') or (definition.isspace()):
         messagebox.showerror("Error", "Definition Field can not be blank")
     else:
-        folder = os.getcwd()
-        file = folder + "\\Studysets.csv"
-        f = open(file, "r")
-        text = f.readlines()
-        line = strip(text[num])
-        removeLine(num)
-        f = open(file, "a")
-        f.write(line + "|" + term + "|" + definition + "\n")
-        f.close()
+        fileName = os.getcwd() + "\\Studysets.csv"
+        temp_file = "temp.csv" 
+        with open(fileName, 'r') as f:
+            line = f.readlines()
+            line[num] = line[num].strip() + "|" + term + "|" + definition + "\n"
+        with open(temp_file, 'w') as file:
+            file.writelines(line)
+
+
+        os.remove(fileName)
+        os.rename(temp_file, fileName)
+        updateleaderboardEdit(num)
         addTo(window, num)
-        #updateleaderboardEdit(num)
-        
 def titles(lines):
     '''
     Returns a string of all the elements before | in studysets.csv, the title of the studyset
@@ -970,21 +973,34 @@ def save(term, definition, num,window):
     appends the term and definition values pulled from entries that the user can edit 
     '''
     title = titles(num)
-    fileName = os.getcwd() + '\\Studysets.csv'
-    file = open(fileName, "a")
+
     if checkValid(term, definition) == True:
-        file.write(title)
-        for i in range(len(term)):
-            t = term[i].get()
-            d = definition[i].get()
-            file.write("|" + t + "|" + strip(d))
-        file.write("\n")
-        file.close()
-        editLine(num)
+        editLine(term, definition, num)
         updateleaderboardEdit(num)
         removeMenu(window)
-def editLine(num):
-    pass
+def editLine(term, definition, num):
+    fileName = os.getcwd() + "\\Studysets.csv"
+    temp_file = "temp.csv"  # Temporary file to store modified data
+    with open(fileName, 'r') as file:
+        lines = file.readlines()  # Read all lines from the CSV file
+
+    # Modify the desired line with the new data
+    lineSeperatedList = lines[num].split("|")
+    lineSeperatedList[-1] = (lineSeperatedList[-1]).strip()
+    title = lineSeperatedList[0]
+    lines[num] = title
+    for i in range(len(term)):
+        t = term[i].get()
+        d = definition[i].get()
+        lines[num] = lines[num].strip() + "|" + t + "|" + strip(d) +"\n"
+        file.close()
+    with open(temp_file, 'w') as file:
+        file.writelines(lines)  # Write all modified lines to the temporary file
+
+    # Replace the original file with the modified file
+
+    os.remove(fileName)
+    os.rename(temp_file, fileName)
 def strip(line):
     '''
     Strips lines of the line break
@@ -1066,10 +1082,18 @@ def addCsv(file):
     text = file.readlines()
     file.close()
     studysets = os.getcwd() + "\\Studysets.csv"
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
     file = open(studysets, "a")
     for i in range(len(text)):
         file.writelines(text[i])
     file.writelines("\n") 
+    fileLB = open(leaderboardFile, "a")
+    for i in range(len(text)):
+        line = text[i].split("|")
+        fileLB.writelines(line[0])
+        fileLB.writelines("\n") 
+    file.close()
+    fileLB.close()
 # create main window 
 root = Tk()
 
