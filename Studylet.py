@@ -319,14 +319,14 @@ def quiz_window(window, num):
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
 def updateleaderboardEdit(num):
-    leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
         lines = file.readlines()  # Read all lines from the CSV file
 
     lineSeperatedList = lines[num].split("|")
     title = lineSeperatedList[0]
-    lines[num] = title + "\n"
+    lines[num] = title
     with open(temp_file, 'w') as file:
         file.writelines(lines)  # Write all modified lines to the temporary file
 
@@ -334,6 +334,10 @@ def updateleaderboardEdit(num):
 
     os.remove(leaderboardFile)
     os.rename(temp_file, leaderboardFile)
+def updateLeaderboardAdd(title):
+    leaderboardFile = os.getcwd() + "\\StudyletLeaderboard.csv"
+    with open(leaderboardFile, 'a') as file:
+        file.write(title + "\n")
 def updateLeaderboard(leaderboardFile, num, time, score):
     temp_file = "temp.csv"  # Temporary file to store modified data
     with open(leaderboardFile, 'r') as file:
@@ -623,7 +627,7 @@ def addData(title, term, definition, window):
             f = open(file, "w")
             f.write(title +"|" + term + "|" + definition)
             f.close()
-        addFlashcard2(window)
+        addFlashcard2(window, title)
 def addFlashcard2(window, title):
     '''
     Window that has data boxes for adding a term and definition, only appears after the first flashcard add menu has been gone through
@@ -651,16 +655,15 @@ def addFlashcard2(window, title):
     canvas.create_window((canvas_width2, canvas_height), window=frame2, anchor=CENTER)
     frame3 = Frame(canvas)
     canvas.create_window((canvas_width3, canvas_height3), window=frame3, anchor = CENTER)
-    title = "Creating Flashcard Set"
-    titlePage = Label(frame3, text = title)
+    titlePage = Label(frame3, text = "Creating Flashcard Set")
     termlbl = Label(frame, text = "Term:")
     termbox = Entry(frame2)
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addData2(termbox, defbox, canvas)])
+                    command = lambda:[addData2(termbox, defbox, canvas, title)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas)])
+                     command = lambda:[studysetMenu(canvas), updateLeaderboardAdd(title)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -668,14 +671,7 @@ def addFlashcard2(window, title):
     defbox.pack()
     addbtn.pack()
     backbtn.pack()
-def backStudyset(canvas):
-    folder = os.getcwd()
-    file = folder + "\\Studysets.csv"
-    f = open(file, "a")
-    f.write("\n")
-    f.close()
-    studysetMenu(canvas)
-def addData2(term, definition, window):
+def addData2(term, definition, window, title):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
     '''
@@ -691,7 +687,7 @@ def addData2(term, definition, window):
         f = open(file, "a")
         f.write("|" + term + "|" + definition)
         f.close()
-        addFlashcard2(window)
+        addFlashcard2(window, title)
 def removeMenu(window):
     '''
     SHows the user a list of the available study sets, clicking on one will bring them to a page where they can edit or remove the entire studyset
@@ -734,7 +730,7 @@ def removeMenu(window):
                             command = lambda id = i:[removeSet(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
-    
+
 def addToExisting(window):
     '''
     Shows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
@@ -812,9 +808,9 @@ def addTo(window, num):
     deflbl = Label(frame, text = 'Definition:')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add',
-                    command = lambda:[addDataToExisting(termbox, defbox, canvas,num)])
+                    command = lambda:[addDataToExisting(termbox, defbox, canvas, num)])
     backbtn = Button(frame2, text = 'Back',
-                     command = lambda:[backStudyset(canvas)])
+                     command = lambda:[studysetMenu(canvas), updateleaderboardEdit(num)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack()
@@ -833,18 +829,19 @@ def addDataToExisting(term, definition, window, num):
     elif (definition == '') or (definition.isspace()):
         messagebox.showerror("Error", "Definition Field can not be blank")
     else:
-        folder = os.getcwd()
-        file = folder + "\\Studysets.csv"
-        f = open(file, "r")
-        text = f.readlines()
-        line = strip(text[num])
-        removeLine(num)
-        f = open(file, "a")
-        f.write(line + "|" + term + "|" + definition + "\n")
-        f.close()
+        fileName = os.getcwd() + "\\Studysets.csv"
+        temp_file = "temp.csv" 
+        with open(fileName, 'r') as f:
+            line = f.readlines()
+            line[num] = line[num].strip() + "|" + term + "|" + definition + "\n"
+        with open(temp_file, 'w') as file:
+            file.writelines(line)
+
+
+        os.remove(fileName)
+        os.rename(temp_file, fileName)
+
         addTo(window, num)
-        #updateleaderboardEdit(num)
-        
 def titles(lines):
     '''
     Returns a string of all the elements before | in studysets.csv, the title of the studyset
