@@ -134,7 +134,7 @@ def flashcardList(window):
     titlelbl = Label(frame, text = 'Available Studysets')
     titlelbl.pack()
     backbutton = Button(frame, text = "back",
-                        command = lambda:[homeMenu(canvas), toggle_scrollbar(scrollbar)])
+                        command = lambda:[toggle_scrollbar(scrollbar), homeMenu(canvas)])
     
     # Placing buttons
     for i in range(lines):
