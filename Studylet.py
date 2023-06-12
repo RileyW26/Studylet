@@ -28,6 +28,8 @@ def splitQuestions(questionTerms):
     Takes the two lists terms and definitions
 
     splits the number of terms into two
+
+    Using a for loop,
     
     
     
