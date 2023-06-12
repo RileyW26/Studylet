@@ -430,12 +430,18 @@ def leaderboard(window, fileName, num, time, score):
     tree.pack()
     backbtn = Button(frame, text = 'Back',command = lambda:[homeMenu(canvas)])
     backbtn.pack()
-def leaderboardFileCreation(fileName):
+def fileInitialization(fileName):
+    fileName = os.getcwd() + "\Studysets.csv"
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
-    isFile = os.path.isfile(leaderboardFile)
+    isFile1 = os.path.isfile(fileName)
+    isFile2 = os.path.isfile(leaderboardFile)
+    if isFile1 == False:
+        file = open(fileName, "w")
+        file.close()
     file = open(fileName, "r")
     text = file.readlines()
-    if isFile == False:
+
+    if isFile2 == False:
         fileLB = open(leaderboardFile, "w")
         for i in range(len(text)):
             line = text[i]
@@ -520,8 +526,7 @@ def homeMenu(window):
     quizbtn.pack()
     studysetbtn.pack()
     exitbtn.pack()
-    fileName = os.getcwd() + "\Studysets.csv"
-    leaderboardFileCreation(fileName)
+    fileInitialization()
     # calling mainloop method which is used when you rapplication is ready to run and it tells the code to keep displaying
     mainloop()
 def studysetMenu(window):
