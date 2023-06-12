@@ -430,7 +430,7 @@ def leaderboard(window, fileName, num, time, score):
     tree.pack()
     backbtn = Button(frame, text = 'Back',command = lambda:[homeMenu(canvas)])
     backbtn.pack()
-def fileInitialization(fileName):
+def fileInitialization():
     fileName = os.getcwd() + "\Studysets.csv"
     leaderboardFile = os.getcwd() + "\StudyletLeaderboard.csv"
     isFile1 = os.path.isfile(fileName)
