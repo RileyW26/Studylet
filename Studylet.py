@@ -45,6 +45,7 @@ def flashcardList(window):
             button = Button(frame, text = titles(i), style = 'Custom.TButton', command = lambda id = i:[flashcard(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
+    f.close()
 def flashcard(window, num):
     '''
     Creates a base for the flashcards to be displayed
@@ -59,6 +60,7 @@ def flashcard(window, num):
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     count = 0
+    file.close()
     flashcardShow(canvas, num, terms, definitions, count)
 def flashcardShow(window, num, t, d, count):
     '''
@@ -359,6 +361,7 @@ def quiz_window(window, num):
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
     leaderboard(canvas, num, timeCompletion, scorePercentage)
+    file.close()
 #=============================================================== Leaderboard functions ================================================================
 def updateleaderboardEdit(num):
     '''
@@ -431,6 +434,7 @@ def updateLeaderboard(leaderboardFile, num, time, score):
 
     os.remove(leaderboardFile)
     os.rename(temp_file, leaderboardFile)
+    file.close()
     return orderedScores, orderedTimes
 def bubbleSort(arr, secondArr):
     '''
@@ -552,6 +556,7 @@ def fileInitialization():
             title = value[0]
             fileLB.writelines(title + "\n")
         fileLB.close()
+    file.close()
 def disable_column_resizing(event):
     # Prevent the Treeview widget from resizing columns
     return "break"
@@ -701,7 +706,7 @@ def addstudyset(window):
     deflbl = Label(frame, text = 'Definition:', style = 'Custom.TLabel')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add', style = 'Custom.TButton', command = lambda:[addData(titlebox, termbox, defbox, canvas)])
-    backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[studysetMenu(canvas),])
+    backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[addn2(titlebox, termbox, defbox),studysetMenu(canvas),])
     titlePage.pack()
     titlelbl.pack()
     titlebox.pack(pady = 11)
@@ -711,6 +716,17 @@ def addstudyset(window):
     defbox.pack(pady = 20)
     addbtn.pack()
     backbtn.pack()
+def addn2(title, term, definition):
+    '''
+    check if title box, term box, definition box is empty, if they arent, will break to a new line
+    '''
+    title = title.get()
+    term = term.get()
+    definition = definition.get()
+    if (title == '') or (title.isspace()) or (term == '') or (term.isspace()) or (definition == '') or (definition.isspace()):
+        pass
+    else:
+        addn()
 def addData(title, term, definition, window):
     '''
     Checks if a file exists, if it does not then enters write mode and writes data taken from entry boxes.
@@ -771,7 +787,7 @@ def addFlashcard2(window, title):
     deflbl = Label(frame, text = 'Definition:', style = 'Custom.TLabel')
     defbox = Entry(frame2)
     addbtn = Button(frame, text = 'Add', style = 'Custom.TButton', command = lambda:[addData2(termbox, defbox, canvas, title)])
-    backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[studysetMenu(canvas), updateLeaderboardAdd(title)])
+    backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[addn(), studysetMenu(canvas), updateLeaderboardAdd(title)])
     titlePage.pack()
     termlbl.pack()
     termbox.pack(pady = 11)
@@ -779,6 +795,15 @@ def addFlashcard2(window, title):
     defbox.pack(pady = 11)
     addbtn.pack()
     backbtn.pack()
+def addn():
+    '''
+    breaks line to a new line
+    '''
+    folder = os.getcwd()
+    file = folder + "\\Studysets.csv"
+    f = open(file, "a")
+    f.write("\n")
+    f.close()
 def addData2(term, definition, window, title):
     '''
     Appends a term and definition onto studysets.csv, pulling them from entries 
@@ -838,7 +863,7 @@ def removeMenu(window):
             button = Button(frame, text = titles(i), style = 'Custom.TButton', command = lambda id = i:[removeSet(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
-
+    f.close()
 def addToExisting(window):
     '''
     Shows the user a list of the available study sets, clicking on one will bring them to a page where they can see the list of all available studysets
@@ -882,6 +907,7 @@ def addToExisting(window):
             button = Button(frame, text = titles(i), style = 'Custom.TButton', command = lambda id = i:[addTo(canvas, id), toggle_scrollbar(scrollbar)])
             button.pack(side = "top", fill = X)
     backbutton.pack()
+    f.close()
 def addTo(window, num):
     '''
     Where the user can enter information to add to an existing studyset
