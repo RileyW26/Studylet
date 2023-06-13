@@ -7,125 +7,8 @@ import random
 import time
 from tkinter import filedialog as fd 
 from memory_profiler import profile
-def seperateTermsDefinitions(termsAndDefinitionsValues):
-    '''
-    This function takes a list of the title, terms and definitions
-
-    Sorts the terms and definitions into two seperate lists, and returns the two lists, discarding the title
-    
-    '''
-    terms = []#declare list
-    definitions = []#declare list
-    for i in range (1, len(termsAndDefinitionsValues)):#start from 1 to ignore title
-        if i % 2 == 0: #if index is even, it is a definition
-            definitions.append(termsAndDefinitionsValues[i])
-        elif i % 2 != 0: #if index is odd, it is a term
-            terms.append(termsAndDefinitionsValues[i])
-    return terms, definitions
-
-def splitQuestions(questionTerms):
-    '''
-    Takes the two lists terms and definitions
-
-    splits the number of terms into two to create two lists of questions, multiple choice and true or false
-
-    returns the indexes to access specific terms and definitions later
-    
-    '''
-    terms, definitions = questionTerms
-    questions = []
-    trueOrFalseQuestions = []
-    for i in range(len(terms)):
-        questions.append(i) #creates a list with all of the indexes
-    halfLength = len(questions)/2
-    for i in range(int(halfLength)):#splits the indexes in half
-        randomInteger = random.choice(questions)
-        questions.remove(randomInteger)
-        trueOrFalseQuestions.append(randomInteger)
-    return questions, trueOrFalseQuestions
-
-def makeTrueOrFalseQuestions(dividedQuestions, qt):
-    '''
-    Creates two list of indexes, one for questions to be true, one for questions to be false
-    
-    Creates two dictionnaries for correct question and incorrect questions, using the indexes to access the corresponding terms and definitions
-
-    For incorrect questions, a random definition is chosen, resulting in the correct answer being false
-
-    The values for each key are lists, with the definition and the answer (true or false)
-
-    Returns these dictionnaries to be used in creating and displaying questions in the GUI
-    
-    '''
-    trueOrFalseWrong = []
-    trueOrFalseQuestion = {}
-    trueOrFalseWrongQuestion = {}
-    multipleChoice, trueOrFalse = dividedQuestions
-    terms, definitions = qt
-    definitions[-1] = (definitions[-1])[:-1]#remove "\n"
-    halfLength = len(trueOrFalse)//2#round
-
-    for i in range(int(halfLength)):#split the true or false questions into half correct, half wrong 
-        randomInteger = random.choice(trueOrFalse)
-        trueOrFalse.remove(randomInteger)#removes and append
-        trueOrFalseWrong.append(randomInteger)
-    for j in range (len(trueOrFalse)):#grabbing the actual terms and definitions and the correct answer to be used in creating questions
-        trueOrFalseQuestion.update({terms[trueOrFalse[j]] : [definitions[trueOrFalse[j]], "true"]})
-
-    for k in range (len(trueOrFalseWrong)):
-        randomElement = random.randint(0, len(definitions)-1)
-        excludedElement = trueOrFalseWrong[k] 
-        while randomElement == excludedElement:#making sure the random definition is not the correct definition
-            randomElement = random.choice(trueOrFalseWrong)
-        trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : [definitions[randomElement],"false"]}) #grabbing the actual terms and definitions and the correct answer to be used in creating questions
-    return trueOrFalseQuestion, trueOrFalseWrongQuestion
-def makeMultipleChoiceQuestions(dividedQuestions, qt):
-    '''
-    Takes the term indexes for the multiple choice questions
-
-    For every index, grabs the corresponding term and definition
-
-        updates a dictionary for multiple choice questions
-
-        the term is the key
-
-        For the value of the key, it is a list with the corresponding definition of the term as the first element representing the correct answer, 
-        with 3 other elements being random definitions to represent incorrect answer
-
-    '''
-    multipleChoice, trueOrFalse = dividedQuestions
-    terms, definitions = qt
-    definitions[-1] = (definitions[-1]).strip() #removes \n from last list element
-    multipleChoiceQuestions = {}
-    for i in range(len(multipleChoice)):
-        multipleAnswers = []
-        definitionNum = []
-        for k in range(len(definitions)):
-            definitionNum.append(k)
-        multipleAnswers.append(definitions[multipleChoice[i]])
-        temp = multipleChoice[i]
-        definitionNum.remove(temp)
-        for j in range(3): #repeat 3 times for 3 fake answers
-            randomNumber = random.choice(definitionNum)
-            definitionNum.remove(randomNumber)
-            multipleAnswers.append(definitions[randomNumber])
-        multipleChoiceQuestions.update({terms[multipleChoice[i]] : multipleAnswers })
-    return multipleChoiceQuestions
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
-def quizChecker(termsAndDefinitions):
-    '''
-    Checks if the amount of terms of a study set is less than four
-    
-    If it is not, 
-    
-    It will pop up a message box notifying the user that there needs to be atleast 4 pairs of terms and definitions
-
-    it will return True so in quiz_window, it returns to avoid any errors
-    '''
-    if len(termsAndDefinitions[0]) < 4:
-        messagebox.showinfo("Quiz Requirements", "To start a quiz with this study set, make sure there is atleast 4 pairs of terms and definitions")
-        return True
 def flashcardList(window):
     folder = os.getcwd()
     file = folder + "\\Studysets.csv"
@@ -238,7 +121,11 @@ def showCorresponding(num, definitions, button, t):
        button.config(text = strip(definitions[num]))
    else:
        button.config(text = strip(t[num]))
+#================================================================ Quiz Functions ==========================================================================================
 def frames(canvas, window):
+    '''
+    Creates a frame that adjusts to the screen size
+    '''
     frame = Frame(canvas)
     # Calculate the pixel values based on percentages
     canvas_width_percentage = 50  # Width as a percentage of the window width
@@ -249,7 +136,140 @@ def frames(canvas, window):
     canvas_height = percentageWindow(canvas_height_percentage, window_height)
     canvas.create_window((canvas_width, canvas_height), window=frame, anchor=CENTER)
     return frame
+def seperateTermsDefinitions(termsAndDefinitionsValues):
+    '''
+    This function takes a list of the title, terms and definitions
+
+    Sorts the terms and definitions into two seperate lists, and returns the two lists, discarding the title
+    
+    '''
+    terms = []#declare list
+    definitions = []#declare list
+    for i in range (1, len(termsAndDefinitionsValues)):#start from 1 to ignore title
+        if i % 2 == 0: #if index is even, it is a definition
+            definitions.append(termsAndDefinitionsValues[i])
+        elif i % 2 != 0: #if index is odd, it is a term
+            terms.append(termsAndDefinitionsValues[i])
+    return terms, definitions
+
+def splitQuestions(questionTerms):
+    '''
+    Takes the two lists terms and definitions
+
+    splits the number of terms into two to create two lists of questions, multiple choice and true or false
+
+    returns the indexes to access specific terms and definitions later
+    
+    '''
+    terms, definitions = questionTerms
+    questions = []
+    trueOrFalseQuestions = []
+    for i in range(len(terms)):
+        questions.append(i) #creates a list with all of the indexes
+    halfLength = len(questions)/2
+    for i in range(int(halfLength)):#splits the indexes in half
+        randomInteger = random.choice(questions)
+        questions.remove(randomInteger)
+        trueOrFalseQuestions.append(randomInteger)
+    return questions, trueOrFalseQuestions
+
+def makeTrueOrFalseQuestions(dividedQuestions, qt):
+    '''
+    Creates two list of indexes, one for questions to be true, one for questions to be false
+    
+    Creates two dictionnaries for correct question and incorrect questions, using the indexes to access the corresponding terms and definitions
+
+    For incorrect questions, a random definition is chosen, resulting in the correct answer being false
+
+    The values for each key are lists, with the definition and the answer (true or false)
+
+    Returns these dictionnaries to be used in creating and displaying questions in the GUI
+    
+    '''
+    trueOrFalseWrong = []
+    trueOrFalseQuestion = {}
+    trueOrFalseWrongQuestion = {}
+    multipleChoice, trueOrFalse = dividedQuestions
+    terms, definitions = qt
+    definitions[-1] = (definitions[-1])[:-1]#remove "\n"
+    halfLength = len(trueOrFalse)//2#round
+
+    for i in range(int(halfLength)):#split the true or false questions into half correct, half wrong 
+        randomInteger = random.choice(trueOrFalse)
+        trueOrFalse.remove(randomInteger)#removes and append
+        trueOrFalseWrong.append(randomInteger)
+    for j in range (len(trueOrFalse)):#grabbing the actual terms and definitions and the correct answer to be used in creating questions
+        trueOrFalseQuestion.update({terms[trueOrFalse[j]] : [definitions[trueOrFalse[j]], "true"]})
+
+    for k in range (len(trueOrFalseWrong)):
+        randomElement = random.randint(0, len(definitions)-1)
+        excludedElement = trueOrFalseWrong[k] 
+        while randomElement == excludedElement:#making sure the random definition is not the correct definition
+            randomElement = random.choice(trueOrFalseWrong)
+        trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : [definitions[randomElement],"false"]}) #grabbing the actual terms and definitions and the correct answer to be used in creating questions
+    return trueOrFalseQuestion, trueOrFalseWrongQuestion
+def makeMultipleChoiceQuestions(dividedQuestions, qt):
+    '''
+    Takes the term indexes for the multiple choice questions
+
+    For every index, grabs the corresponding term and definition
+
+        updates a dictionary for multiple choice questions
+
+        the term is the key
+
+        For the value of the key, it is a list with the corresponding definition of the term as the first element representing the correct answer, 
+        with 3 other elements being random definitions to represent incorrect answer
+
+    '''
+    multipleChoice, trueOrFalse = dividedQuestions
+    terms, definitions = qt
+    definitions[-1] = (definitions[-1]).strip() #removes \n from last list element
+    multipleChoiceQuestions = {}
+    for i in range(len(multipleChoice)):
+        multipleAnswers = []
+        definitionNum = []
+        for k in range(len(definitions)):
+            definitionNum.append(k)
+        multipleAnswers.append(definitions[multipleChoice[i]])
+        temp = multipleChoice[i]
+        definitionNum.remove(temp)
+        for j in range(3): #repeat 3 times for 3 fake answers
+            randomNumber = random.choice(definitionNum)
+            definitionNum.remove(randomNumber)
+            multipleAnswers.append(definitions[randomNumber])
+        multipleChoiceQuestions.update({terms[multipleChoice[i]] : multipleAnswers })
+    return multipleChoiceQuestions
+def quizChecker(termsAndDefinitions):
+    '''
+    Checks if the amount of terms of a study set is less than four
+    
+    If it is not, 
+    
+    It will pop up a message box notifying the user that there needs to be atleast 4 pairs of terms and definitions
+
+    it will return True so in quiz_window, it returns to avoid any errors
+    '''
+    if len(termsAndDefinitions[0]) < 4:
+        messagebox.showinfo("Quiz Requirements", "To start a quiz with this study set, make sure there is atleast 4 pairs of terms and definitions")
+        return True
 def quiz_window(window, num):
+    '''
+    Takes the true or false questions and multiple choice questions from makeTrueOrFalseQuestions() and makeMultipleChoiceQuestions()
+
+    Creates the display for these questions, multiple choice first then true or false
+
+    As soon as the quiz is started, and timer is set which ends when the quiz is completed
+
+    The total score possible is calculate using the length of the lists containing all the true or false questions and multiple choice questions
+
+    Everytime a correct answer is submitted through a button, it adds one to score
+
+    Calculates the percentage score using score and total score
+
+    returns score, time and the 
+    
+    '''
     #Visuals
     fileName = os.getcwd() + '\\Studysets.csv'
     file = open(fileName, "r")
@@ -339,7 +359,8 @@ def quiz_window(window, num):
     end = time.time()
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
-    leaderboard(canvas, fileName, num, timeCompletion, scorePercentage)
+    leaderboard(canvas, num, timeCompletion, scorePercentage)
+#=============================================================== Leaderboard functions ================================================================
 def updateleaderboardEdit(num):
     '''
     When a studyset is edited, this function is called to remove the leaderboard scores, but keep the title and line for new scores
@@ -457,7 +478,7 @@ def bubbleSortTime(arr, secondArr):
                     secondArr[j] = secondArr[j+1]#replaces left with right
                     secondArr[j+1] = tempTwo
     return secondArr
-def leaderboard(window, fileName, num, time, score):
+def leaderboard(window, num, time, score):
     '''
     Displays the quiz leaderboard
 
@@ -502,6 +523,7 @@ def leaderboard(window, fileName, num, time, score):
     tree.pack()
     backbtn = Button(frame, text = 'Back', style = 'Custom.TButton', command = lambda:[homeMenu(canvas)])
     backbtn.pack()
+#===================================================================== Leaderboard functions end ===============================================================================
 def fileInitialization():
     '''
     Initializes the necessary files for the application.
