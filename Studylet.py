@@ -194,19 +194,25 @@ def makeTrueOrFalseQuestions(dividedQuestions, qt):
     terms, definitions = qt
     definitions[-1] = (definitions[-1])[:-1]#remove "\n"
     halfLength = len(trueOrFalse)//2#round
-
+    
     for i in range(int(halfLength)):#split the true or false questions into half correct, half wrong 
         randomInteger = random.choice(trueOrFalse)
         trueOrFalse.remove(randomInteger)#removes and append
         trueOrFalseWrong.append(randomInteger)
     for j in range (len(trueOrFalse)):#grabbing the actual terms and definitions and the correct answer to be used in creating questions
         trueOrFalseQuestion.update({terms[trueOrFalse[j]] : [definitions[trueOrFalse[j]], "true"]})
-
+    print('start2')
     for k in range (len(trueOrFalseWrong)):
         randomElement = random.randint(0, len(definitions)-1)
         excludedElement = trueOrFalseWrong[k] 
+        print(randomElement)
+        print(excludedElement)
+        print('start3')
+        print('trueOrFalseWrong: ', trueOrFalseWrong)
         while randomElement == excludedElement:#making sure the random definition is not the correct definition
             randomElement = random.choice(trueOrFalseWrong)
+            print(randomElement)
+        print('start4')
         trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : [definitions[randomElement],"false"]}) #grabbing the actual terms and definitions and the correct answer to be used in creating questions
     return trueOrFalseQuestion, trueOrFalseWrongQuestion
 def makeMultipleChoiceQuestions(dividedQuestions, qt):
@@ -254,42 +260,9 @@ def quizChecker(termsAndDefinitions):
     if len(termsAndDefinitions[0]) < 4:
         messagebox.showinfo("Quiz Requirements", "To start a quiz with this study set, make sure there is atleast 4 pairs of terms and definitions")
         return True
-def quiz_window(window, num):
-    '''
-    Takes the true or false questions and multiple choice questions from makeTrueOrFalseQuestions() and makeMultipleChoiceQuestions()
-
-    Creates the display for these questions, multiple choice first then true or false
-
-    As soon as the quiz is started, and timer is set which ends when the quiz is completed
-
-    The total score possible is calculate using the length of the lists containing all the true or false questions and multiple choice questions
-
-    Everytime a correct answer is submitted through a button, it adds one to score
-
-    Calculates the percentage score using score and total score
-
-    returns score, time and the 
-    
-    '''
-    #Visuals
-    fileName = os.getcwd() + '\\Studysets.csv'
-    file = open(fileName, "r")
-    text = file.readlines()
-    line = text[int(num)]
-    value = line.split("|")
-    td2 = seperateTermsDefinitions(value)
-    splitedQuestions = splitQuestions(td2)
-    quizCheck = quizChecker(td2)
-    if quizCheck == True:
-        return
-    questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
-    questionsTF = {**questionTF, **questionTFWrong}
-    questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
-    canvas = Canvas(window)
-    canvas.pack(side=LEFT, fill=BOTH, expand=True)
-    score = 0 #Will be added to when a correct answer is submitted and compared with the fully correct score to find percentage
-    fullyCorrectScore = len(list(questionMC)) + len(list(questionTF)) + len(list(questionTFWrong)) #Adding len of questionMC, questionTF, questionTFWrong to find total score for the quiz
-    start = time.time() #Start timer
+def questionMCDisplay(questionMC, canvas, window):
+    score = 0
+    print(questionMC)
     while questionMC != {}:
         frame = frames(canvas, window)
 
@@ -326,6 +299,10 @@ def quiz_window(window, num):
         if answer_submitted.get() == correctAnswer:
             score += 1
         frame.destroy()
+    return score
+def questionTFDisplay(questionsTF, canvas, window):
+    score = 0
+    print(questionsTF)
     while questionsTF !={}:
         frame = frames(canvas, window)
 
@@ -357,6 +334,50 @@ def quiz_window(window, num):
         if answer_submitted.get() == correctAnswer:
             score += 1
         frame.destroy()
+    return score
+def quiz_window(window, num):
+    '''
+    Takes the true or false questions and multiple choice questions from makeTrueOrFalseQuestions() and makeMultipleChoiceQuestions()
+
+    Creates the display for these questions, multiple choice first then true or false
+
+    As soon as the quiz is started, and timer is set which ends when the quiz is completed
+
+    The total score possible is calculate using the length of the lists containing all the true or false questions and multiple choice questions
+
+    Everytime a correct answer is submitted through a button, it adds one to score
+
+    Calculates the percentage score using score and total score
+
+    returns score, time and the 
+    
+    '''
+    #Visuals
+    fileName = os.getcwd() + '\\Studysets.csv'
+    file = open(fileName, "r")
+    text = file.readlines()
+    line = text[int(num)]
+    value = line.split("|")
+    td2 = seperateTermsDefinitions(value)
+    splitedQuestions = splitQuestions(td2)
+    quizCheck = quizChecker(td2)
+    if quizCheck == True:
+        return
+    print('start1')
+    questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
+    print('start')
+    questionsTF = {**questionTF, **questionTFWrong}
+    questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
+    canvas = Canvas(window)
+    canvas.pack(side=LEFT, fill=BOTH, expand=True)
+    fullyCorrectScore = len(list(questionMC)) + len(list(questionTF)) + len(list(questionTFWrong)) #Adding len of questionMC, questionTF, questionTFWrong to find total score for the quiz
+    start = time.time() #Start timer
+    print("before question MCdisplay")
+    score1 = questionMCDisplay(questionMC, canvas, window)
+    print("after question display, before question TF")
+    score2 = questionTFDisplay(questionsTF, canvas, window)
+    print("after questiontf")
+    score = score1 + score2
     end = time.time()
     timeCompletion = end-start
     scorePercentage = str((score/fullyCorrectScore)*100)
