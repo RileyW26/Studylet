@@ -201,18 +201,11 @@ def makeTrueOrFalseQuestions(dividedQuestions, qt):
         trueOrFalseWrong.append(randomInteger)
     for j in range (len(trueOrFalse)):#grabbing the actual terms and definitions and the correct answer to be used in creating questions
         trueOrFalseQuestion.update({terms[trueOrFalse[j]] : [definitions[trueOrFalse[j]], "true"]})
-    print('start2')
     for k in range (len(trueOrFalseWrong)):
         randomElement = random.randint(0, len(definitions)-1)
         excludedElement = trueOrFalseWrong[k] 
-        print(randomElement)
-        print(excludedElement)
-        print('start3')
-        print('trueOrFalseWrong: ', trueOrFalseWrong)
         while randomElement == excludedElement:#making sure the random definition is not the correct definition
-            randomElement = random.choice(trueOrFalseWrong)
-            print(randomElement)
-        print('start4')
+            randomElement = random.randint(0, len(definitions)-1)
         trueOrFalseWrongQuestion.update({terms[trueOrFalseWrong[k]] : [definitions[randomElement],"false"]}) #grabbing the actual terms and definitions and the correct answer to be used in creating questions
     return trueOrFalseQuestion, trueOrFalseWrongQuestion
 def makeMultipleChoiceQuestions(dividedQuestions, qt):
@@ -363,20 +356,15 @@ def quiz_window(window, num):
     quizCheck = quizChecker(td2)
     if quizCheck == True:
         return
-    print('start1')
     questionTF, questionTFWrong = makeTrueOrFalseQuestions(splitedQuestions, td2)
-    print('start')
     questionsTF = {**questionTF, **questionTFWrong}
     questionMC = makeMultipleChoiceQuestions(splitedQuestions, td2)
     canvas = Canvas(window)
     canvas.pack(side=LEFT, fill=BOTH, expand=True)
     fullyCorrectScore = len(list(questionMC)) + len(list(questionTF)) + len(list(questionTFWrong)) #Adding len of questionMC, questionTF, questionTFWrong to find total score for the quiz
     start = time.time() #Start timer
-    print("before question MCdisplay")
     score1 = questionMCDisplay(questionMC, canvas, window)
-    print("after question display, before question TF")
     score2 = questionTFDisplay(questionsTF, canvas, window)
-    print("after questiontf")
     score = score1 + score2
     end = time.time()
     timeCompletion = end-start
