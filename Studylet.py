@@ -6,7 +6,6 @@ from os.path import exists
 import random
 import time
 from tkinter import filedialog as fd 
-from memory_profiler import profile
 def percentageWindow(percentage, total_length):
     return int(percentage / 100 * total_length)
 def flashcardList(window):
@@ -775,9 +774,9 @@ def addFlashcard2(window, title):
     backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[studysetMenu(canvas), updateLeaderboardAdd(title)])
     titlePage.pack()
     termlbl.pack()
-    termbox.pack()
+    termbox.pack(pady = 11)
     deflbl.pack()
-    defbox.pack()
+    defbox.pack(pady = 11)
     addbtn.pack()
     backbtn.pack()
 def addData2(term, definition, window, title):
@@ -920,9 +919,9 @@ def addTo(window, num):
     backbtn = Button(frame2, text = 'Back', style = 'Custom.TButton', command = lambda:[studysetMenu(canvas)])
     titlePage.pack()
     termlbl.pack()
-    termbox.pack()
+    termbox.pack(pady = 11)
     deflbl.pack()
-    defbox.pack()
+    defbox.pack(pady = 11)
     addbtn.pack()
     backbtn.pack()
 def addDataToExisting(term, definition, window, num):
@@ -1026,15 +1025,13 @@ def removeSet(window, num):
     defEntry = []
     titlelbl = Label(frame3, text = 'Edit studyset "' + titles(num)+'"', style = 'Custom.TLabel')
     titlelbl.pack()
-    blank = Label(frame4, text = '', style = 'Custom.TLabel')
-    blank.pack()
     file.close()
     for i in range(len(terms)):
         entry = Entry(frame)
         entry.insert(END, terms[i])
         entry.pack()
         termEntry.append(entry)
-        blank = Label(frame4, text = '', style = 'Custom.TLabel')
+        blank = Label(frame4, text = '')
         blank.pack()
     savebtn = Button(frame4, text = 'Save', style = 'Custom.TButton', command = lambda:[save(termEntry, defEntry, num, canvas),toggle_scrollbar(scrollbar)])
     for i in range(len(defintions)):
