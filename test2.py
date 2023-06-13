@@ -1,32 +1,22 @@
-from tkinter import *
+from tkinter import tk
 from tkinter.ttk import *
 
-def disable_column_resizing(event):
-    # Prevent the Treeview widget from resizing columns
-    return "break"
+root = Tk()
 
-def create_treeview():
-    root = Tk()
-    root.title("Disable Column Resizing")
+# Create a frame
+frame = Frame(root, width=200, height=200)
+frame.pack()
+longtext = """
+I'm obviously just a button.
+It doesn't take much to be a button.
+The text is used to tell the user when
+It happens when I get pushed.
+What's the matter, but why me?
+That long?
+"""
 
-    tree = Treeview(root)
-    tree["columns"] = ("Column1", "Column2", "Column3")
+b = tk.Button(frame, text=longtext, anchor ="w", justify="left", padx=2, command= callback)
+b.pack()
 
-    tree.column("Column1", width=100)
-    tree.column("Column2", width=150)
-    tree.column("Column3", width=200)
 
-    tree.heading("Column1", text="Column 1")
-    tree.heading("Column2", text="Column 2")
-    tree.heading("Column3", text="Column 3")
-
-    # Insert data rows
-    tree.insert("", END, values=("Data 1", "Data 2", "Data 3"))
-    tree.insert("", END, values=("Data 4", "Data 5", "Data 6"))
-
-    tree.bind("<ButtonPress-1>", disable_column_resizing)
-
-    tree.pack()
-    root.mainloop()
-
-create_treeview()
+root.mainloop()
